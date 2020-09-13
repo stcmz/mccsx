@@ -1,13 +1,23 @@
-﻿using mccsx;
+﻿using System;
+using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
+using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 
-namespace System.CommandLine.Builder
+// Workaround for the c# 9.0 preview feature (record)
+// Will be removed upon .NET 5.0 release
+namespace System.Runtime.CompilerServices
 {
-    internal class Program
+    public class IsExternalInit { }
+}
+
+namespace mccsx
+{
+    internal static class Program
     {
-        private static string? ValidateDirectory(CommandResult result, string alias, bool required)
+        private static string? ValidateDirectory(this CommandResult result, string alias, bool required)
         {
             var opt = result[alias];
 
@@ -24,19 +34,42 @@ namespace System.CommandLine.Builder
             return null;
         }
 
-        private static int Main(string[] args)
+        private static void AddHandler<TAction, TOptions>(this Command command)
+            where TAction : IAction<TOptions>, new()
+        {
+            // The parameters of the handler method are matched according to the names of the options
+            command.Handler = CommandHandler.Create<TOptions>(options =>
+            {
+                var action = new TAction();
+
+                int retCode = action.Setup(options);
+
+                if (retCode != 0)
+                    return retCode;
+
+                var sw = Stopwatch.StartNew();
+                retCode = action.Run();
+
+                if (retCode == 0)
+                    Console.WriteLine($"Total time used: {sw.Elapsed}");
+
+                return retCode;
+            });
+        }
+
+        private static async Task<int> Main(string[] args)
         {
             // See .NET command line API here: https://github.com/dotnet/command-line-api
 
             // Create the search sub-command with some options
-            var searchCommand = new Command("search", "To perform similarity search for a target vector in a RECV (residue energy contribution vector) library and generate search reports")
+            var searchCommand = new Command("search", "To perform similarity search for a pattern vector in a RECV (residue energy contribution vector) library and generate search reports")
             {
                 new Option<DirectoryInfo>(
                     new[] { "-l", "--library" },
                     "(required) A directory containing RECVs (in jdock output layout) of the conformations of a ligand library to similarity search in"),
                 new Option<DirectoryInfo>(
-                    new[] { "-t", "--target" },
-                    "(required) A directory containing RECVs (in jdock output layout) of the target conformation to similarity searched for"),
+                    new[] { "-p", "--pattern" },
+                    "(required) A directory containing RECVs (in jdock output layout) of the pattern conformation to similarity search for"),
                 new Option<DirectoryInfo>(
                     new[] { "-o", "--out" },
                     "A directory to store the similarity report and the most similar conformations [default: .]"),
@@ -47,34 +80,22 @@ namespace System.CommandLine.Builder
                 new Option<Measure>(
                     new[] { "-m", "--measure" },
                     () => Measure.cosine,
-                    "The similarity measurement algorithm to be used in matching a candidate RECV in the library with a target RECV"),
+                    "The similarity measurement algorithm to be used in matching a candidate RECV in the library with a pattern RECV"),
             };
 
-            // The parameters of the handler method are matched according to the names of the options
-            searchCommand.Handler = CommandHandler.Create<SearchOptions>(options =>
-            {
-                if (options.IsValid)
-                    return new SearchAction().Run(options);
-
-                Console.Error.WriteLine("Invalid options for: mccsx search");
-
-                return -1;
-            });
-
             // Add a validator to the pipeline for validating directory options
-            searchCommand.AddValidator(o =>
+            searchCommand.AddValidator(cr =>
             {
-                string? msg = ValidateDirectory(o, "--library", true);
+                string? msg = cr.ValidateDirectory("--library", true);
                 if (msg != null) return msg;
 
-                msg = ValidateDirectory(o, "--target", true);
-                if (msg != null) return msg;
-
-                msg = ValidateDirectory(o, "--out", false);
+                msg = cr.ValidateDirectory("--pattern", true);
                 if (msg != null) return msg;
 
                 return null;
             });
+
+            searchCommand.AddHandler<SearchAction, SearchOptions>();
 
             // Create the collate sub-command with some options
             var collateCommand = new Command("collate", "To collect input vectors from a RECV (residue energy contribution vector) library and optionally generate similarity matrices, heatmaps and Excel workbooks")
@@ -133,24 +154,12 @@ namespace System.CommandLine.Builder
                     "A filter script to be applied to the residue names that is invoked with the prefix name of input conformation substituting the {} placeholder if present or appended to the script if otherwise (The script must return a table with two columns: the residue sequence and numbering)"),
             };
 
-            // The parameters of the handler method are matched according to the names of the options
-            collateCommand.Handler = CommandHandler.Create<CollateOptions>(options =>
-            {
-                if (options.IsValid)
-                    return new CollateAction().Run(options);
-
-                Console.Error.WriteLine("Invalid options for: mccsx collate");
-
-                return -1;
-            });
+            collateCommand.AddHandler<CollateAction, CollateOptions>();
 
             // Add a validator to the pipeline for validating directory options
-            collateCommand.AddValidator(o =>
+            collateCommand.AddValidator(cr =>
             {
-                string? msg = ValidateDirectory(o, "--library", true);
-                if (msg != null) return msg;
-
-                msg = ValidateDirectory(o, "--out", false);
+                string? msg = cr.ValidateDirectory("--library", true);
                 if (msg != null) return msg;
 
                 return null;
@@ -164,7 +173,7 @@ namespace System.CommandLine.Builder
             };
 
             // Parse the incoming args and invoke the handler
-            return rootCommand.InvokeAsync(args).Result;
+            return await rootCommand.InvokeAsync(args);
         }
     }
 }
