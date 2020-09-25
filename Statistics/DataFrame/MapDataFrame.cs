@@ -4,7 +4,8 @@ using System.Linq;
 
 namespace mccsx.Statistics
 {
-    public class MapDataFrame<TRowKey, TColumnKey> : IDataFrame<TRowKey, TColumnKey, IVector<TColumnKey, TRowKey, string?>, IVector<TRowKey, TColumnKey, string?>>
+    public class MapDataFrame<TRowKey, TColumnKey>
+        : IDataFrame<TRowKey, TColumnKey, IVector<TColumnKey, TRowKey, string?>, IVector<TRowKey, TColumnKey, string?>>
         where TRowKey : notnull
         where TColumnKey : notnull
     {
@@ -12,7 +13,11 @@ namespace mccsx.Statistics
         private readonly IReadOnlyDictionary<TColumnKey, IVector<TRowKey, TColumnKey, string?>> _cols;
         private readonly IReadOnlyDictionary<TRowKey, IVector<TColumnKey, TRowKey, string?>> _rows;
 
-        public MapDataFrame(IEnumerable<IVector<TRowKey, TColumnKey, string?>> vectors, IReadOnlyDictionary<TRowKey, string> rowTags, string rowTagName, string colTagName)
+        public MapDataFrame(
+            IEnumerable<IVector<TRowKey, TColumnKey, string?>> vectors,
+            IReadOnlyDictionary<TRowKey, string>? rowTags = null,
+            string? rowTagName = null,
+            string? colTagName = null)
         {
             _vectors = vectors.ToList();
             RowKeys = _vectors[0].UnionKeys(_vectors.Skip(1)).ToList();
@@ -34,8 +39,8 @@ namespace mccsx.Statistics
         public int RowCount => _rows.Count;
         public int ColumnCount => _cols.Count;
 
-        public string RowTagName { get; }
-        public string ColumnTagName { get; }
+        public string? RowTagName { get; }
+        public string? ColumnTagName { get; }
 
         public IVector<TColumnKey, TRowKey, string?> GetRow(TRowKey rowKey) => _rows[rowKey];
         public IVector<TRowKey, TColumnKey, string?> GetColumn(TColumnKey colKey) => _cols[colKey];
@@ -44,6 +49,11 @@ namespace mccsx.Statistics
         public IVector<TRowKey, TColumnKey, string?> GetColumnAt(int index) => _cols[ColumnKeys[index]];
 
         public double GetAt(int rowIndex, int colIndex) => _rows[RowKeys[rowIndex]][ColumnKeys[colIndex]];
+
+        public bool Has(TRowKey rowKey, TColumnKey columnKey)
+        {
+            return _cols.TryGetValue(columnKey, out var vector) && vector.Has(rowKey);
+        }
 
         public void OrderRowsBy<TKey>(Func<IVector<TColumnKey, TRowKey>, TKey> keySelector)
         {

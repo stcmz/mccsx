@@ -3,7 +3,7 @@ using System.Drawing;
 using System.Globalization;
 using System.Linq;
 
-namespace mccsx
+namespace mccsx.Helpers
 {
     public static class ColorHelper
     {
@@ -43,6 +43,68 @@ namespace mccsx
         public static Color ToColor((double a, double r, double g, double b) color)
         {
             return Color.FromArgb((int)(color.a * 255), (int)(color.r * 255), (int)(color.g * 255), (int)(color.b * 255));
+        }
+
+        private static double HueToRgb(double p, double q, double t)
+        {
+            if (t < 0) t += 1;
+            if (t > 1) t -= 1;
+            if (t < 1 / 6) return p + (q - p) * 6 * t;
+            if (t < 1 / 2) return q;
+            if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+            return p;
+        }
+
+        // a, h, s, l components are in range [0, 1]
+        // https://en.wikipedia.org/wiki/HSL_and_HSV#HSL_to_RGB
+        public static Color FromAhsl(double a, double h, double s, double l)
+        {
+            var (r, g, b) = (l, l, l); // achromatic
+
+            if (s != 0)
+            {
+                double q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                double p = 2 * l - q;
+                r = HueToRgb(p, q, h + 1 / 3);
+                g = HueToRgb(p, q, h);
+                b = HueToRgb(p, q, h - 1 / 3);
+            }
+
+            return ToColor((a, r, g, b));
+        }
+
+        public static Color FromHsl(double h, double s, double l)
+        {
+            return FromAhsl(1, h, s, l);
+        }
+
+        // a, h, s, v components are in range [0, 1]
+        // https://en.wikipedia.org/wiki/HSL_and_HSV#HSV_to_RGB
+        public static Color FromAhsv(double a, double h, double s, double v)
+        {
+            int hi = (int)Math.Floor(h * 6);
+            double f = h * 6 - Math.Floor(h * 6);
+
+            double p = v * (1 - s);
+            double q = v * (1 - f * s);
+            double t = v * (1 - (1 - f) * s);
+
+            if (hi == 0)
+                return ToColor((a, v, t, p));
+            if (hi == 1)
+                return ToColor((a, q, v, p));
+            if (hi == 2)
+                return ToColor((a, p, v, t));
+            if (hi == 3)
+                return ToColor((a, p, q, v));
+            if (hi == 4)
+                return ToColor((a, t, p, v));
+            return ToColor((a, v, p, q));
+        }
+
+        public static Color FromHsv(double h, double s, double v)
+        {
+            return FromAhsv(1, h, s, v);
         }
 
         public static Color Lerp(Color color0, Color color1, double v)

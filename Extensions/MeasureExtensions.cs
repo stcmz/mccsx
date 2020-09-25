@@ -1,10 +1,11 @@
-﻿using mccsx.Statistics;
+﻿using mccsx.Helpers;
+using mccsx.Statistics;
 using System;
 using System.Diagnostics;
 
-namespace mccsx
+namespace mccsx.Extensions
 {
-    internal static class MesaureExtensions
+    internal static class MeasureExtensions
     {
         public static IVectorDistanceMeasure SimilarityMeasure(this Measure measure)
         {

@@ -20,8 +20,8 @@ namespace mccsx.Statistics
         int RowCount { get; }
         int ColumnCount { get; }
 
-        string RowTagName { get; }
-        string ColumnTagName { get; }
+        string? RowTagName { get; }
+        string? ColumnTagName { get; }
 
         TRowVector GetRow(TRowKey rowKey);
         TColumnVector GetColumn(TColumnKey colKey);
@@ -30,6 +30,8 @@ namespace mccsx.Statistics
         TColumnVector GetColumnAt(int index);
 
         double GetAt(int rowIndex, int colIndex);
+
+        bool Has(TRowKey rowKey, TColumnKey columnKey);
 
         void OrderRowsBy<TKey>(Func<IVector<TColumnKey, TRowKey>, TKey> keySelector);
         void OrderColumnsBy<TKey>(Func<IVector<TRowKey, TColumnKey>, TKey> keySelector);

@@ -1,6 +1,8 @@
-﻿using System;
+﻿using mccsx.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 
 namespace mccsx.Statistics
@@ -9,8 +11,12 @@ namespace mccsx.Statistics
         where TRowKey : notnull
         where TColumnKey : notnull
     {
-        public ClusteringInfo(IClusterDistanceMeasure cdm, IVectorDistanceMeasure vdm, IEnumerable<IVector<TRowKey, TColumnKey>> vectors)
+        public ClusteringInfo(
+            IClusterDistanceMeasure cdm,
+            IVectorDistanceMeasure vdm,
+            IEnumerable<IVector<TRowKey, TColumnKey>> vectors)
         {
+            _vectors = vectors;
             var clusters = vectors.Select(o => (ICluster<TRowKey>?)o.Cluster()).ToList();
 
             BadVectorCount = clusters.Count(o => o![0].IsZero || o[0].IsNaN);
@@ -79,6 +85,8 @@ namespace mccsx.Statistics
             NodeCount = nodes.Count;
         }
 
+        private readonly IEnumerable<IVector<TRowKey, TColumnKey>> _vectors;
+
         public IReadOnlyList<ClusteringNode> Nodes { get; }
         public ClusteringNode this[int index] => Nodes[index];
 
@@ -114,6 +122,36 @@ namespace mccsx.Statistics
                     result[i] = p++;
 
             return result;
+        }
+
+        public static IReadOnlyList<string> CsvColumnHeaders { get; }
+            = new[] { "Group ID", "Left", "Right", "Observ 1", "Observ 2", "Depth", "Distance" };
+
+        public void WriteToCsvFile(string fileName)
+        {
+            var list = new List<object?[]>();
+
+            int id = 0;
+            foreach (var vec in _vectors)
+            {
+                list.Add(new object?[] { id++, vec.Name, null, 1, null, 0, null });
+            }
+
+            foreach (var node in Nodes)
+            {
+                list.Add(new object?[]
+                {
+                    id++,
+                    node.ClusterIdx1,
+                    node.ClusterIdx2,
+                    node.Observations1,
+                    node.Observations2,
+                    node.Depth,
+                    node.Distance,
+                });
+            }
+
+            File.WriteAllLines(fileName, list.FormatCsvRows(CsvColumnHeaders));
         }
     }
 }

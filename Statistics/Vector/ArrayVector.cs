@@ -7,6 +7,7 @@ namespace mccsx.Statistics
     public class ArrayVector : IVector<int, string, string?>
     {
         private readonly double[] _data;
+
         public ArrayVector(double[] data, string name, string? tag = null)
         {
             _data = data;
@@ -31,6 +32,11 @@ namespace mccsx.Statistics
         public bool IsZero { get; }
 
         public bool IsNaN { get; }
+
+        public bool Has(int key)
+        {
+            return 0 <= key && key < _data.Length;
+        }
 
         public ICluster<int> Cluster()
         {

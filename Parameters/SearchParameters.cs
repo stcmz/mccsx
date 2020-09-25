@@ -3,12 +3,12 @@ using System.IO;
 
 namespace mccsx
 {
-    internal record SearchModel
+    internal record SearchParameters
     (
         DirectoryInfo LibraryDir,
         DirectoryInfo OutputDir,
         int ResultCount,
-        SimilarityModel Similarity,
+        SimilarityParameters Similarity,
         string PatternName,
         Dictionary<Category, FileInfo> PatternCsvs
     );

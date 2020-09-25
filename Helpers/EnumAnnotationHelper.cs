@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace mccsx
+namespace mccsx.Helpers
 {
     public static class EnumAnnotationHelper<TEnum>
         where TEnum : notnull

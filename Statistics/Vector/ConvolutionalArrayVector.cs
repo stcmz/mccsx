@@ -55,6 +55,11 @@ namespace mccsx.Statistics
 
         public bool IsNaN { get; }
 
+        public bool Has(int key)
+        {
+            return 0 <= key && key < _vectors.Count;
+        }
+
         public ICluster<int> Cluster()
         {
             return new ClusterBase<IVector<int, TOriginalKey, string?>, int>(new[] { this });

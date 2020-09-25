@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace mccsx
+namespace mccsx.Helpers
 {
     public static class CsvHelper
     {
-        public static string FormatCsvRow(params object[] fields)
+        public static string FormatCsvRow(params object?[] fields)
         {
             return fields.FormatCsvRow();
         }
 
-        public static string FormatCsvRow(this IEnumerable<object> fields)
+        public static string FormatCsvRow(this IEnumerable<object?> fields)
         {
             return string.Join(",", fields
                 .Select(o => o?.ToString())
@@ -28,16 +28,31 @@ namespace mccsx
                 }));
         }
 
-        public static IEnumerable<string> FormatCsvRows(this IEnumerable<IEnumerable<object>> rows, params IEnumerable<object>[] headerSets)
+        public static IEnumerable<string> FormatCsvRows(
+            this IEnumerable<IEnumerable<object?>> rows,
+            params IEnumerable<object?>[] headerSets)
         {
             return headerSets.Concat(rows).Select(o => o.FormatCsvRow());
         }
 
-        public static IEnumerable<string[]> ParseCsvRows(this IEnumerable<string> rows, params int[] columnIds) => rows.ParseCsvRows(',', columnIds);
+        public static IEnumerable<string[]> ParseCsvRows(
+            this IEnumerable<string> rows,
+            params int[] columnIds)
+        {
+            return rows.ParseCsvRows(',', columnIds);
+        }
 
-        public static IEnumerable<string[]> ParseCsvRows(this IEnumerable<string> rows, params string[] columnNames) => rows.ParseCsvRows(',', columnNames);
+        public static IEnumerable<string[]> ParseCsvRows(
+            this IEnumerable<string> rows,
+            params string[] columnNames)
+        {
+            return rows.ParseCsvRows(',', columnNames);
+        }
 
-        public static IEnumerable<string[]> ParseCsvRows(this IEnumerable<string> rows, char delimiter, params int[] columnIds)
+        public static IEnumerable<string[]> ParseCsvRows(
+            this IEnumerable<string> rows,
+            char delimiter,
+            params int[] columnIds)
         {
             int maxIndex = columnIds.Max();
 
@@ -50,7 +65,10 @@ namespace mccsx
             }
         }
 
-        public static IEnumerable<string[]> ParseCsvRows(this IEnumerable<string> rows, char delimiter, params string[] columnNames)
+        public static IEnumerable<string[]> ParseCsvRows(
+            this IEnumerable<string> rows,
+            char delimiter,
+            params string[] columnNames)
         {
             var headers = rows.First().SplitCsvFields(delimiter).Select((o, i) => new { o, i }).ToDictionary(o => o.o, o => o.i);
 

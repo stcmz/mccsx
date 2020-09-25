@@ -1,4 +1,6 @@
-﻿using System;
+﻿using mccsx.Extensions;
+using mccsx.Helpers;
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
@@ -15,7 +17,7 @@ namespace mccsx.Statistics
             bool leftAlignedBadVectors,
             bool upToDownForVerticalText,
             (double scale, Color color)[] colorScheme,
-            (string name, Color color)[] colorBarScheme,
+            (string name, Color color)[]? colorBarScheme,
             Color lineColor,
             Color labelColor,
             ClusteringInfo<TRowKey, TColumnKey>? rowClustInfo = null,
@@ -142,14 +144,17 @@ namespace mccsx.Statistics
                         int barHeight = spectrum.Height * 4 / 3;
 
                         // draw row/column color horizontal legend
-                        for (int i = 0; i < colorBarScheme.Length; i++)
+                        if (colorBarScheme != null)
                         {
-                            var (name, color) = colorBarScheme[i];
-                            var anchor = new Point(colorbarLegendPos.X, colorbarLegendPos.Y + i * barHeight);
-                            using (var brush = new SolidBrush(color))
-                                g.FillRectangle(brush, anchor.X, anchor.Y, spectrum.Height, spectrum.Height);
-                            anchor.X += spectrum.Height + labelSpacing;
-                            g.DrawString(name, legendLabelFont, labelBrush, anchor.X, anchor.Y + (spectrum.Height - legendLabelFont.Height) / 2);
+                            for (int i = 0; i < colorBarScheme.Length; i++)
+                            {
+                                var (name, color) = colorBarScheme[i];
+                                var anchor = new Point(colorbarLegendPos.X, colorbarLegendPos.Y + i * barHeight);
+                                using (var brush = new SolidBrush(color))
+                                    g.FillRectangle(brush, anchor.X, anchor.Y, spectrum.Height, spectrum.Height);
+                                anchor.X += spectrum.Height + labelSpacing;
+                                g.DrawString(name, legendLabelFont, labelBrush, anchor.X, anchor.Y + (spectrum.Height - legendLabelFont.Height) / 2);
+                            }
                         }
                     }
                     else // vertical spectrum
@@ -178,14 +183,17 @@ namespace mccsx.Statistics
                         int barHeight = spectrum.Width * 3 / 2;
 
                         // draw row/column color vertical legend
-                        for (int i = 0; i < colorBarScheme.Length; i++)
+                        if (colorBarScheme != null)
                         {
-                            var (name, color) = colorBarScheme[i];
-                            var anchor = new Point(colorbarLegendPos.X, colorbarLegendPos.Y + i * barHeight);
-                            using (var brush = new SolidBrush(color))
-                                g.FillRectangle(brush, anchor.X, anchor.Y, spectrum.Width, spectrum.Width);
-                            anchor.X += spectrum.Width + labelSpacing;
-                            g.DrawString(name, legendLabelFont, labelBrush, anchor.X, anchor.Y + (spectrum.Width - legendLabelFont.Height) / 2);
+                            for (int i = 0; i < colorBarScheme.Length; i++)
+                            {
+                                var (name, color) = colorBarScheme[i];
+                                var anchor = new Point(colorbarLegendPos.X, colorbarLegendPos.Y + i * barHeight);
+                                using (var brush = new SolidBrush(color))
+                                    g.FillRectangle(brush, anchor.X, anchor.Y, spectrum.Width, spectrum.Width);
+                                anchor.X += spectrum.Width + labelSpacing;
+                                g.DrawString(name, legendLabelFont, labelBrush, anchor.X, anchor.Y + (spectrum.Width - legendLabelFont.Height) / 2);
+                            }
                         }
                     }
                 }

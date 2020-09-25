@@ -1,7 +1,7 @@
 ﻿using System.Drawing;
 using System.Drawing.Drawing2D;
 
-namespace mccsx
+namespace mccsx.Extensions
 {
     public static class GraphicsExtensions
     {

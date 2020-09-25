@@ -18,6 +18,8 @@ namespace mccsx
         public bool Cluster { get; set; }
         public bool Heatmap { get; set; }
         public bool Workbook { get; set; }
+        public int Top { get; set; }
         public string? Filter { get; set; }
+        public string? States { get; set; }
     }
 }

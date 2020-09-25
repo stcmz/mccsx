@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace mccsx.Statistics
 {
@@ -13,6 +14,7 @@ namespace mccsx.Statistics
         bool IsZero { get; }
         bool IsNaN { get; }
 
+        bool Has(TKey key);
         ICluster<TKey> Cluster();
         IEnumerable<TKey> UnionKeys(params IVector<TKey>[] vecs);
         IEnumerable<TKey> UnionKeys(IEnumerable<IVector<TKey>> vecs);

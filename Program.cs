@@ -142,16 +142,23 @@ namespace mccsx
                     "Enable the output of similarity matrices in CSV format"),
                 new Option<bool>(
                     new[] { "-c", "--cluster" },
-                    "Enable clustering of input vectors and/or similarity matrices"),
+                    "Enable clustering of input vectors and/or similarity matrices (requires --vector and/or --matrix)"),
                 new Option<bool>(
                     new[] { "-H", "--heatmap" },
-                    "Enable the generation of heatmaps for input vectors and/or similarity matrices"),
+                    "Enable the generation of heatmaps for input vectors and/or similarity matrices (requires --vector and/or --matrix)"),
                 new Option<bool>(
                     new[] { "-w", "--workbook" },
-                    "Enable the generation of Excel workbooks for input vectors and/or similarity matrices"),
+                    "Enable the generation of Excel workbooks for input vectors, similarity matrices and ranking reports"),
+                new Option<int>(
+                    new[] { "-n", "--top" },
+                    () => 20,
+                    "The number of top residues to be emitted into the ranking reports"),
                 new Option<string>(
                     new[] { "-f", "--filter" },
                     "A filter script to be applied to the residue names that is invoked with the prefix name of input conformation substituting the {} placeholder if present or appended to the script if otherwise (The script must return a table with two columns: the residue sequence and numbering)"),
+                new Option<string>(
+                    new[] { "-F", "--filter_state" },
+                    "A filter script to be used in determining the state of the inputs (The script must return a table with two columns: the input name and state)"),
             };
 
             collateCommand.AddHandler<CollateAction, CollateOptions>();
@@ -161,6 +168,15 @@ namespace mccsx
             {
                 string? msg = cr.ValidateDirectory("--library", true);
                 if (msg != null) return msg;
+
+                if (!cr.GetArgumentValueOrDefault<bool>("--vector") &&
+                    !cr.GetArgumentValueOrDefault<bool>("--matrix"))
+                {
+                    if (!cr.GetArgumentValueOrDefault<bool>("--cluster"))
+                        return "Clustering must be performed for: --vector, --matrix, or both";
+                    if (!cr.GetArgumentValueOrDefault<bool>("--heatmap"))
+                        return "Heatmaps must be generated for: --vector, --matrix, or both";
+                }
 
                 return null;
             });

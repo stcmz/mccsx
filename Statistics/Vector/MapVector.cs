@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace mccsx.Statistics
@@ -7,6 +8,7 @@ namespace mccsx.Statistics
         where TKey : notnull
     {
         private readonly IDictionary<TKey, double> _data;
+
         public MapVector(IDictionary<TKey, double> data, string name, string? tag = null)
         {
             _data = data;
@@ -31,6 +33,11 @@ namespace mccsx.Statistics
         public bool IsZero { get; }
 
         public bool IsNaN { get; }
+
+        public bool Has(TKey key)
+        {
+            return _data.ContainsKey(key);
+        }
 
         public ICluster<TKey> Cluster()
         {
