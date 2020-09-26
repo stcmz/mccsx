@@ -159,7 +159,7 @@ namespace mccsx
                     "Force to overwriting all existing output files, the default behavior is to skip existing files"),
                 new Option<RowOrdering>(
                     new[] { "--sort_iv_rows" },
-                    () => RowOrdering.score,
+                    () => RowOrdering.sequence,
                     "The sorting rule for the rows of input vectors in heatmaps"),
                 new Option<string>(
                     new[] { "-f", "--filter" },

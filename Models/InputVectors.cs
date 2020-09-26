@@ -21,7 +21,7 @@ namespace mccsx.Models
     internal sealed class InputVectors : MapDataFrame<string, string>
     {
         private InputVectors(
-            IEnumerable<IVector<string, string, string?>> vectors,
+            IEnumerable<IVector<string, string, string?>> colVectors,
             IReadOnlyDictionary<string, string>? rowTags,
             string? rowTagName,
             string? colTagName,
@@ -29,7 +29,7 @@ namespace mccsx.Models
             IReadOnlyDictionary<string, ResidueInfo> residueInfo,
             IReadOnlyDictionary<string, double[]> summaryFields,
             ICollection<string> errorMessages)
-            : base(vectors, rowTags, rowTagName, colTagName)
+            : base(colVectors, rowTags, rowTagName, colTagName)
         {
             IndexName = indexName;
             ResidueInfo = residueInfo;

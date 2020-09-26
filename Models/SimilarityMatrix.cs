@@ -9,11 +9,11 @@ namespace mccsx.Models
     internal class SimilarityMatrix : MapDataFrame<string, string>
     {
         private SimilarityMatrix(
-            IEnumerable<IVector<string, string, string?>> vectors,
+            IEnumerable<IVector<string, string, string?>> colVectors,
             IReadOnlyDictionary<string, string>? rowTags,
             string? rowTagName,
             string? colTagName)
-            : base(vectors, rowTags, rowTagName, colTagName)
+            : base(colVectors, rowTags, rowTagName, colTagName)
         {
         }
 
@@ -27,15 +27,15 @@ namespace mccsx.Models
             (
                 inputVectors.ColumnKeys.Select
                 (
-                    a => new MapVector<string>
+                    colKey => new MapVector<string>
                     (
                         inputVectors.ColumnKeys.ToDictionary
                         (
-                            b => b, // Row key
-                            b => similarityMeasure.Measure(inputVectors.GetColumn(a), inputVectors.GetColumn(b)) // Similarity value
+                            rowKey => rowKey, // Row key
+                            rowKey => similarityMeasure.Measure(inputVectors.GetColumn(colKey), inputVectors.GetColumn(rowKey)) // Similarity value
                         ),
-                        a, // Column key
-                        inputVectors.GetColumn(a).Tag // Column tag
+                        colKey, // Column key
+                        inputVectors.GetColumn(colKey).Tag // Column tag
                     )
                 ),
                 inputVectors.GetRowTags(), // Row tags

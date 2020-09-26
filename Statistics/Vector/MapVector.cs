@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace mccsx.Statistics
@@ -46,12 +45,12 @@ namespace mccsx.Statistics
 
         public IEnumerable<TKey> UnionKeys(params IVector<TKey>[] vecs)
         {
-            return Keys.Concat(vecs.SelectMany(o => o.Keys)).Distinct().OrderBy(o => o);
+            return Keys.Concat(vecs.SelectMany(o => o.Keys)).Distinct();
         }
 
         public IEnumerable<TKey> UnionKeys(IEnumerable<IVector<TKey>> vecs)
         {
-            return Keys.Concat(vecs.SelectMany(o => o.Keys)).Distinct().OrderBy(o => o);
+            return Keys.Concat(vecs.SelectMany(o => o.Keys)).Distinct();
         }
     }
 }

@@ -9,19 +9,20 @@ namespace mccsx.Statistics
         where TRowKey : notnull
         where TColumnKey : notnull
     {
-        private readonly IReadOnlyList<IVector<TRowKey, TColumnKey, string?>> _vectors;
+        private readonly IReadOnlyList<IVector<TRowKey, TColumnKey, string?>> _colVectors;
         private readonly IReadOnlyDictionary<TColumnKey, IVector<TRowKey, TColumnKey, string?>> _cols;
         private readonly IReadOnlyDictionary<TRowKey, IVector<TColumnKey, TRowKey, string?>> _rows;
 
         public MapDataFrame(
-            IEnumerable<IVector<TRowKey, TColumnKey, string?>> vectors,
+            IEnumerable<IVector<TRowKey, TColumnKey, string?>> colVectors,
             IReadOnlyDictionary<TRowKey, string>? rowTags = null,
             string? rowTagName = null,
             string? colTagName = null)
         {
-            _vectors = vectors.ToList();
-            RowKeys = _vectors[0].UnionKeys(_vectors.Skip(1)).ToList();
-            _cols = _vectors.ToDictionary(o => o.Name, o => o);
+            // No particular order is required or maintained in the raw column vectors
+            _colVectors = colVectors.ToList();
+            RowKeys = _colVectors[0].UnionKeys(_colVectors.Skip(1)).ToList();
+            _cols = _colVectors.ToDictionary(o => o.Name, o => o);
             ColumnKeys = _cols.Keys.ToList();
             RowTagName = rowTagName;
             ColumnTagName = colTagName;
@@ -30,8 +31,15 @@ namespace mccsx.Statistics
 
         public double this[TRowKey rowKey, TColumnKey colKey] => _rows[rowKey][colKey];
 
-        public IEnumerable<IVector<TColumnKey, TRowKey, string?>> Rows => _rows.Values; // the returned order is not affected by OrderRowsBy()
-        public IEnumerable<IVector<TRowKey, TColumnKey, string?>> Columns => _cols.Values; // the returned order is not affected by OrderColumnsBy()
+        /// <summary>
+        /// Get the raw row vectors. The returned order is not affected by OrderRowsBy()
+        /// </summary>
+        public IEnumerable<IVector<TColumnKey, TRowKey, string?>> Rows => _rows.Values;
+
+        /// <summary>
+        /// Get the raw column vectors. The returned order is not affected by OrderColumnsBy()
+        /// </summary>
+        public IEnumerable<IVector<TRowKey, TColumnKey, string?>> Columns => _cols.Values;
 
         public IReadOnlyList<TRowKey> RowKeys { get; private set; }
         public IReadOnlyList<TColumnKey> ColumnKeys { get; private set; }

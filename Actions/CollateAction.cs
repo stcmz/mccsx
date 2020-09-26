@@ -236,6 +236,26 @@ namespace mccsx
                 }
                 inputVectors.ErrorMessages.Clear();
 
+                // Sort the rows of input vectors
+                switch (Parameters.InputVectorRowsOrdering)
+                {
+                    case RowOrdering.score:
+                        // The length of a row vector is defined by the number of input vectors,
+                        // so the average is simply the sum over the row length.
+                        inputVectors.OrderRowsBy(o => o.Values.Sum() / o.Length);
+                        break;
+                    case RowOrdering.sequence:
+                        inputVectors.OrderRowsBy(o => inputVectors.ResidueInfo[o.Name].ResidueSeq);
+                        break;
+                    default:
+                        break;
+                }
+
+                // Sort the columns of input vectors
+                // The specific order will affect the column order in the heatmaps with clustering off.
+                // It will NOT affect the clustering log because clustering runs on the raw vector list.
+                inputVectors.OrderColumnsBy(o => o.Name);
+
                 // Create the output directory if not exist
                 if (!Parameters.OutputDir.Exists)
                     Parameters.OutputDir.Create();
@@ -261,6 +281,14 @@ namespace mccsx
 
                     // Generate the similarity matrix
                     similarityMatrix = SimilarityMatrix.FromInputVectors(inputVectors, Parameters.MatrixSimilarity.Measure);
+
+                    // Sort the rows and columns in the same way, so that the matrix looks symmetric.
+                    // When clustering is on and the same measure+linkage is used on rows and columns, clustering will be performed only once for both.
+                    // In this case, inconsistent order in rows and columns will result in wrong plotting in the heatmap columns.
+                    // The specific order will affect the row/column order in the heatmaps with clustering off.
+                    // It will NOT affect the clustering log because clustering runs on the raw vector list.
+                    similarityMatrix.OrderRowsBy(o => o.Name);
+                    similarityMatrix.OrderColumnsBy(o => o.Name);
 
                     if (Parameters.SimilarityMatricesEnabled)
                     {
@@ -415,20 +443,6 @@ namespace mccsx
                     }
                     else
                     {
-                        switch (Parameters.InputVectorRowsOrdering)
-                        {
-                            case RowOrdering.score:
-                                // The length of a row vector is defined by the number of input vectors,
-                                // so the average is simply the sum over the row length.
-                                inputVectors.OrderRowsBy(o => o.Values.Sum() / o.Length);
-                                break;
-                            case RowOrdering.sequence:
-                                inputVectors.OrderRowsBy(o => inputVectors.ResidueInfo[o.Name].ResidueSeq);
-                                break;
-                            default:
-                                break;
-                        }
-
                         Debug.Assert(clusteringInfo == null || clusteringInfo.Nodes.Count >= MinClusteringVectors - 1);
 
                         Logger.Info($"Plotting heatmap for input vectors in category {category}");
@@ -515,6 +529,7 @@ namespace mccsx
                     }
                     else
                     {
+                        Debug.Assert(Enumerable.SequenceEqual(similarityMatrix.RowKeys, similarityMatrix.ColumnKeys));
                         distRow = distCol = new CachedVectorDistanceMeasure(clusRow.DistanceMeasure);
                     }
 

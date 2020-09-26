@@ -382,11 +382,11 @@ namespace mccsx.Statistics
                         // draw row dendrogram
                         g.DrawLines(dendroPen, new[]
                         {
-                                    rowNodePos[idx1],
-                                    new Point(connpos.X, rowNodePos[idx1].Y),
-                                    new Point(connpos.X, rowNodePos[idx2].Y),
-                                    rowNodePos[idx2],
-                                });
+                            rowNodePos[idx1],
+                            new Point(connpos.X, rowNodePos[idx1].Y),
+                            new Point(connpos.X, rowNodePos[idx2].Y),
+                            rowNodePos[idx2],
+                        });
 
                         rowNodePos.Add(connpos);
                         rowidx.Add(rowidx.Count);
@@ -395,11 +395,11 @@ namespace mccsx.Statistics
                     // draw row clustering info
                     g.DrawLines(dendroPen, new[]
                     {
-                                new Point(rowNodePos.Last().X, heatmap.Bottom),
-                                new Point(rowNodePos.Last().X, heatmap.Bottom + cellLabelDash / 2),
-                                new Point(heatmap.Left - rcolorbar.Width, heatmap.Bottom + cellLabelDash / 2),
-                                new Point(heatmap.Left - rcolorbar.Width, heatmap.Bottom),
-                            });
+                        new Point(rowNodePos.Last().X, heatmap.Bottom),
+                        new Point(rowNodePos.Last().X, heatmap.Bottom + cellLabelDash / 2),
+                        new Point(heatmap.Left - rcolorbar.Width, heatmap.Bottom + cellLabelDash / 2),
+                        new Point(heatmap.Left - rcolorbar.Width, heatmap.Bottom),
+                    });
 
                     var anchor = new Point((rowNodePos.Last().X + heatmap.Left - rcolorbar.Width) / 2, heatmap.Bottom + cellLabelDash / 2);
                     g.DrawLine(dendroPen, anchor.X, anchor.Y, anchor.X, anchor.Y + cellLabelDash / 2);
@@ -464,11 +464,11 @@ namespace mccsx.Statistics
                         // draw column dendrogram
                         g.DrawLines(dendroPen, new[]
                         {
-                                    colNodePos[idx1],
-                                    new Point(colNodePos[idx1].X, connpos.Y),
-                                    new Point(colNodePos[idx2].X, connpos.Y),
-                                    colNodePos[idx2],
-                                });
+                            colNodePos[idx1],
+                            new Point(colNodePos[idx1].X, connpos.Y),
+                            new Point(colNodePos[idx2].X, connpos.Y),
+                            colNodePos[idx2],
+                        });
 
                         colNodePos.Add(connpos);
                         colidx.Add(colidx.Count);
@@ -477,11 +477,11 @@ namespace mccsx.Statistics
                     // draw column clustering info
                     g.DrawLines(dendroPen, new[]
                     {
-                                new Point(heatmap.Right, colNodePos.Last().Y),
-                                new Point(heatmap.Right + cellLabelDash / 2, colNodePos.Last().Y),
-                                new Point(heatmap.Right + cellLabelDash / 2, heatmap.Top - ccolorbar.Height),
-                                new Point(heatmap.Right, heatmap.Top - ccolorbar.Height),
-                            });
+                        new Point(heatmap.Right, colNodePos.Last().Y),
+                        new Point(heatmap.Right + cellLabelDash / 2, colNodePos.Last().Y),
+                        new Point(heatmap.Right + cellLabelDash / 2, heatmap.Top - ccolorbar.Height),
+                        new Point(heatmap.Right, heatmap.Top - ccolorbar.Height),
+                    });
 
                     var anchor = new Point(heatmap.Right + cellLabelDash / 2, (colNodePos.Last().Y + heatmap.Top - ccolorbar.Height) / 2);
                     g.DrawLine(dendroPen, anchor.X, anchor.Y, anchor.X + cellLabelDash / 2, anchor.Y);
