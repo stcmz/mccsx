@@ -17,6 +17,8 @@ namespace mccsx
         bool HeatmapEnabled,
         bool WorkbookEnabled,
         int TopN,
+        bool Overwrite,
+        RowOrdering InputVectorRowsOrdering,
         Func<string, IndexFilter>? GetIndexFilter,
         Func<StateFilter>? GetStateFilter
     );

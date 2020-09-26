@@ -132,14 +132,14 @@ namespace mccsx.Models
             // Build the data rows, in the same ordering of columns
             dataRows = columnKeys.Select((rowKey, i) =>
             {
-                IEnumerable<object?> row = new[] { "Input" };
+                IEnumerable<object?> row = new[] { rowKey };
 
                 // Vector state
                 if (StateName != null)
-                    row.Prepend(columnStates[i]);
+                    row = row.Prepend(columnStates[i]);
 
                 // Similarity data
-                row.Concat(columnKeys.Select(colKey => (object)this[rowKey, colKey]));
+                row = row.Concat(columnKeys.Select(colKey => (object)this[rowKey, colKey]));
 
                 return row;
             });

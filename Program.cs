@@ -1,4 +1,5 @@
-﻿using System;
+﻿using mccsx.Helpers;
+using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
@@ -51,7 +52,7 @@ namespace mccsx
                 retCode = action.Run();
 
                 if (retCode == 0)
-                    Console.WriteLine($"Total time used: {sw.Elapsed}");
+                    Logger.Info($"Total time used: {sw.Elapsed}");
 
                 return retCode;
             });
@@ -102,38 +103,38 @@ namespace mccsx
             {
                 new Option<DirectoryInfo>(
                     new[] { "-l", "--library" },
-                    "(required) A directory containing RECVs (in jdock output layout) of the conformations of a ligand library to collect input vectors from"),
+                    "(required) The directory containing RECVs (in jdock output layout) of the conformations of a ligand library to collect input vectors from"),
                 new Option<DirectoryInfo>(
                     new[] { "-o", "--out" },
-                    "A directory to store the collected input vectors and the computed outputs like similarity matrices [default: .]"),
+                    "The directory to store the collected input vectors and the computed outputs like similarity matrices [default: .]"),
                 new Option<Measure>(
                     new[] { "-m", "--measure" },
                     () => Measure.cosine,
-                    "The similarity measurement algorithm to be used in computing similarity matrices (required --matrix)"),
+                    "The similarity measure to be used in computing similarity matrices (required --matrix)"),
                 new Option<Measure>(
                     new[] { "-M", "--iv_measure" },
                     () => Measure.cosine,
-                    "A distance measurement algorithm to be used in clustering input vectors"),
+                    "The distance measure to be used in clustering input vectors"),
                 new Option<Measure>(
                     new[] { "-s", "--smrow_measure" },
                     () => Measure.cosine,
-                    "A distance measurement algorithm to be used in clustering row vectors of a similarity matrix"),
+                    "The distance measure to be used in clustering row vectors of a similarity matrix"),
                 new Option<Measure>(
                     new[] { "-S", "--smcol_measure" },
                     () => Measure.cosine,
-                    "A distance measurement algorithm to be used in clustering column vectors of a similarity matrix"),
+                    "The distance measure to be used in clustering column vectors of a similarity matrix"),
                 new Option<Linkage>(
                     new[] { "-L", "--iv_linkage" },
                     () => Linkage.farthest,
-                    "A linkage algorithm to be used in clustering the input vectors"),
+                    "The linkage algorithm to be used in clustering the input vectors"),
                 new Option<Linkage>(
                     new[] { "-k", "--smrow_linkage" },
                     () => Linkage.farthest,
-                    "A linkage algorithm to be used in clustering row vectors of a similarity matrix"),
+                    "The linkage algorithm to be used in clustering row vectors of a similarity matrix"),
                 new Option<Linkage>(
                     new[] { "-K", "--smcol_linkage" },
                     () => Linkage.farthest,
-                    "A linkage algorithm to be used in clustering column vectors of a similarity matrix"),
+                    "The linkage algorithm to be used in clustering column vectors of a similarity matrix"),
                 new Option<bool>(
                     new[] { "-v", "--vector" },
                     "Enable the output of input vectors in CSV format which are collected from the RECV library"),
@@ -145,20 +146,27 @@ namespace mccsx
                     "Enable clustering of input vectors and/or similarity matrices (requires --vector and/or --matrix)"),
                 new Option<bool>(
                     new[] { "-H", "--heatmap" },
-                    "Enable the generation of heatmaps for input vectors and/or similarity matrices (requires --vector and/or --matrix)"),
+                    "Enable the generation of PNG heatmaps for input vectors and/or similarity matrices (requires --vector and/or --matrix)"),
                 new Option<bool>(
                     new[] { "-w", "--workbook" },
-                    "Enable the generation of Excel workbooks for input vectors, similarity matrices and ranking reports"),
+                    "Enable the generation of Excel workbooks for input vectors, similarity matrices and residue rankings"),
                 new Option<int>(
                     new[] { "-n", "--top" },
                     () => 20,
-                    "The number of top residues to be emitted into the ranking reports"),
+                    "The number of top residues to be emitted into the ranking reports (requires --workbook)"),
+                new Option<bool>(
+                    new[] { "-y", "--overwrite" },
+                    "Force to overwriting all existing output files, the default behavior is to skip existing files"),
+                new Option<RowOrdering>(
+                    new[] { "--sort_iv_rows" },
+                    () => RowOrdering.score,
+                    "The sorting rule for the rows of input vectors in heatmaps"),
                 new Option<string>(
                     new[] { "-f", "--filter" },
-                    "A filter script to be applied to the residue names that is invoked with the prefix name of input conformation substituting the {} placeholder if present or appended to the script if otherwise (The script must return a table with two columns: the residue sequence and numbering)"),
+                    "The filter script to be applied to the residue sequences that is invoked with the prefix name of input conformation substituting the {} placeholder if present or appended to the script if otherwise (The script must return a headed table consisting of two columns: residue sequence, residue index)"),
                 new Option<string>(
-                    new[] { "-F", "--filter_state" },
-                    "A filter script to be used in determining the state of the inputs (The script must return a table with two columns: the input name and state)"),
+                    new[] { "-F", "--state_filter" },
+                    "The filter script to be used in determining the state of the inputs (The script must return a headed table consisting of two columns: input name, input state)"),
             };
 
             collateCommand.AddHandler<CollateAction, CollateOptions>();
@@ -169,12 +177,12 @@ namespace mccsx
                 string? msg = cr.ValidateDirectory("--library", true);
                 if (msg != null) return msg;
 
-                if (!cr.GetArgumentValueOrDefault<bool>("--vector") &&
-                    !cr.GetArgumentValueOrDefault<bool>("--matrix"))
+                if (!cr.ValueForOption<bool>("--vector") &&
+                    !cr.ValueForOption<bool>("--matrix"))
                 {
-                    if (!cr.GetArgumentValueOrDefault<bool>("--cluster"))
+                    if (cr.ValueForOption<bool>("--cluster"))
                         return "Clustering must be performed for: --vector, --matrix, or both";
-                    if (!cr.GetArgumentValueOrDefault<bool>("--heatmap"))
+                    if (cr.ValueForOption<bool>("--heatmap"))
                         return "Heatmaps must be generated for: --vector, --matrix, or both";
                 }
 

@@ -31,11 +31,11 @@ namespace mccsx
 
             if (patternName == null)
             {
-                Console.Error.WriteLine($"ERROR: Cannot find pattern name in {options.Pattern.FullName}");
+                Logger.Error($"Cannot find pattern name in {options.Pattern.FullName}");
                 return 1;
             }
 
-            Console.WriteLine($"Found pattern name {patternName}");
+            Logger.Info($"Found pattern name {patternName}");
 
             // Try to find the pattern CSV files in the pattern directory
             var patternCsvs = new Dictionary<Category, FileInfo>();
@@ -54,12 +54,12 @@ namespace mccsx
 
             if (patternCsvs.Count == 0)
             {
-                Console.Error.WriteLine($"ERROR: No pattern found in {options.Pattern.FullName}");
+                Logger.Error($"No pattern found in {options.Pattern.FullName}");
                 return 2;
             }
 
             if (errorList.Count > 0)
-                Console.Error.WriteLine($"WARN: Some patterns are missing: {string.Join(", ", errorList)}");
+                Logger.Warning($"Some patterns are missing: {string.Join(", ", errorList)}");
 
             // Finally, set the model for running this action
             Parameters = new SearchParameters(
@@ -81,12 +81,13 @@ namespace mccsx
             // Must have been set in the Setup method
             Debug.Assert(Parameters != null);
 
-            Console.WriteLine($"Using {Parameters.Similarity.Type} similarity measure");
+            // Print out key parameters
+            Logger.Info($"Using {Parameters.Similarity.Type} similarity measure");
 
             Parallel.ForEach(Parameters.PatternCsvs, o =>
             {
                 var (category, patternFile) = o;
-                Console.WriteLine($"Searching in category {category}");
+                Logger.Info($"Searching in category {category}");
 
                 // Load the pattern vector for matching
                 var patternResDict = File.ReadAllLines(patternFile.FullName)
@@ -142,7 +143,7 @@ namespace mccsx
                     count++;
                 }
 
-                Console.WriteLine($"Generating top {Parameters.ResultCount} matches out of {count} {category} vectors");
+                Logger.Info($"Generating top {Parameters.ResultCount} matches out of {count} {category} vectors");
 
                 // Prepare the category specific directory for storing output
                 string categoryDir = Path.Combine(Parameters.OutputDir.FullName, category.ToString());
@@ -202,7 +203,7 @@ namespace mccsx
             int startIndex = text.IndexOf($"MODEL {confId,8}");
             if (startIndex == -1)
             {
-                Console.Error.WriteLine($"ERROR: Failed to find conformation {confId} in {inputPdbqt}");
+                Logger.Error($"Failed to find conformation {confId} in {inputPdbqt}");
                 return;
             }
 

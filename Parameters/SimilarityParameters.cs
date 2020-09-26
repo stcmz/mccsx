@@ -8,6 +8,6 @@ namespace mccsx
         public Measure Type { get; }
         public IVectorDistanceMeasure Measure { get; }
 
-        public SimilarityParameters(Measure measure) => (Type, Measure) = (measure, measure.DistanceMeasure());
+        public SimilarityParameters(Measure measure) => (Type, Measure) = (measure, measure.SimilarityMeasure());
     }
 }

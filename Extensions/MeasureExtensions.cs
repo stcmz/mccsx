@@ -17,7 +17,7 @@ namespace mccsx.Extensions
 
         public static IVectorDistanceMeasure DistanceMeasure(this Measure measure)
         {
-            var simClassType = EnumAnnotationHelper<Measure>.GetAttribute<MeasureImplAttribute>(measure).SimilarityClass;
+            var simClassType = EnumAnnotationHelper<Measure>.GetAttribute<MeasureImplAttribute>(measure).DistanceClass;
             var obj = Activator.CreateInstance(simClassType);
             Debug.Assert(obj != null && obj is IVectorDistanceMeasure);
             return (obj as IVectorDistanceMeasure)!;

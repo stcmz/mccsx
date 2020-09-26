@@ -9,9 +9,9 @@ namespace mccsx.Extensions
 {
     public static class ExcelFluentExtensions
     {
-        public static SpreadsheetDocument OpenXlsxFile(this string filepath)
+        public static SpreadsheetDocument OpenXlsxFile(this string filepath, bool forceOverwrite)
         {
-            if (!File.Exists(filepath))
+            if (forceOverwrite || !File.Exists(filepath))
             {
                 // Create a spreadsheet document by supplying the filepath.
                 // By default, AutoSave = true, Editable = true, and Type = xlsx.

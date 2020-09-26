@@ -89,7 +89,6 @@ namespace mccsx.Statistics
 
             var rcolorbar = rowColorFn != null ? new Size(legend.Width / 6, cell.Height) : new Size(cellSpacing * 2, cell.Height);
             var ccolorbar = columnColorFn != null ? new Size(cell.Width, legend.Height / 6) : new Size(cell.Width, cellSpacing * 2);
-            //Console.WriteLine($"diff: {diffx}, {diffy}");
 
             int dendroSegHeight = columnClustInfo != null ? (legend.Height - ccolorbar.Height) / (columnClustInfo.Depth + 1) : 0;
             int dendroSegWidth = rowClustInfo != null ? (legend.Width - rcolorbar.Width) / (rowClustInfo.Depth + 1) : 0;

@@ -72,68 +72,98 @@ namespace mccsx.Models
                     .ToArray()
             );
 
-            // Scores - input names
-            dataRows = new[] { new[] { "Scores" }.Concat(inputNames) };
+            // Initialize empty data rows
+            dataRows = Array.Empty<object?[]>();
 
-            // Scores - states
-            if (StateName != null)
-                dataRows = dataRows.Append(new[] { $"{StateName}->" }.Concat(inputStates));
-
-            // Scores - ranking lines
-            dataRows = dataRows.Concat(
-                Enumerable.Range(0, TopN).Select(
-                    i => new object?[] { i + 1 }.Concat(
-                        data.Select(
-                            res => i < res.Length ? res[i].Score : (object)0.0))));
+            // Residue scores
+            dataRows = AddDataRows(
+                dataRows,
+                "Scores",
+                inputStates,
+                inputNames,
+                data,
+                o => o.Score,
+                0.0);
 
             if (IndexName != null)
             {
-                // Indices - input names
-                dataRows = dataRows.Append(Array.Empty<object>()).Append(new[] { IndexName }.Concat(inputNames));
+                // Blank row
+                dataRows = dataRows.Append(Array.Empty<object?>());
 
-                // Indices - states
-                if (StateName != null)
-                    dataRows = dataRows.Append(new[] { $"{StateName}->" }.Concat(inputStates));
-
-                // Indices - ranking lines
-                dataRows = dataRows.Concat(
-                    Enumerable.Range(0, TopN).Select(
-                        i => new object[] { i + 1 }.Concat(
-                            data.Select(
-                                res => i < res.Length ? res[i].Index ?? $"{res[i].Residue.GetCode()}{res[i].ResidueSeq}" : (object?)null))));
+                // Input indices
+                dataRows = AddDataRows(
+                    dataRows,
+                    IndexName,
+                    inputStates,
+                    inputNames,
+                    data,
+                    o => o.Index ?? $"{o.Residue.GetCode()}{o.ResidueSeq}",
+                    null);
             }
 
-            // Residue sequences - input names
-            dataRows = dataRows.Append(Array.Empty<object>()).Append(new[] { "Residue sequences" }.Concat(inputNames));
+            // Blank row
+            dataRows = dataRows.Append(Array.Empty<object?>());
 
-            // Residue sequences - states
-            if (StateName != null)
-                dataRows = dataRows.Append(new[] { $"{StateName}->" }.Concat(inputStates));
+            // Residue sequences
+            dataRows = AddDataRows(
+                dataRows,
+                "Residue sequences",
+                inputStates,
+                inputNames,
+                data,
+                o => $"{o.Residue.GetCode()}{o.ResidueSeq}",
+                null);
 
-            // Residue sequences - ranking lines
-            dataRows = dataRows.Concat(
-                Enumerable.Range(0, TopN).Select(
-                    i => new object[] { i + 1 }.Concat(
-                        data.Select(
-                            res => i < res.Length ? $"{res[i].Residue.GetCode()}{res[i].ResidueSeq}" : (object?)null))));
+            // Blank row
+            dataRows = dataRows.Append(Array.Empty<object?>());
 
-            // Residue names - input names
-            dataRows = dataRows.Append(Array.Empty<object>()).Append(new[] { "Residue names" }.Concat(inputNames));
-
-            // Residue names - states
-            if (StateName != null)
-                dataRows = dataRows.Append(new[] { $"{StateName}->" }.Concat(inputStates));
-
-            // Residue names - ranking lines
-            dataRows = dataRows.Concat(
-                Enumerable.Range(0, TopN).Select(
-                    i => new object[] { i + 1 }.Concat(
-                        data.Select(
-                            res => i < res.Length ? res[i].Residue.GetShortName() : (object?)null))));
+            // Residue names
+            dataRows = AddDataRows(
+                dataRows,
+                "Residue names",
+                inputStates,
+                inputNames,
+                data,
+                o => o.Residue.GetShortName().ToUpper(),
+                null);
 
             int top = StateName != null ? 3 : 2;
 
-            return new(1, top, inputNames.Length + 1, top + TopN - 1);
+            return new(2, top, inputNames.Length + 1, top + TopN - 1);
+        }
+
+        private IEnumerable<IEnumerable<object?>> AddDataRows(
+            IEnumerable<IEnumerable<object?>> dataRows,
+            string blockName,
+            string[] inputStates,
+            string[] inputNames,
+            IEnumerable<ResidueScore[]> data,
+            Func<ResidueScore, object?> valueSelector,
+            object? defaultValue)
+        {
+            // Input names
+            dataRows = dataRows.Append(new[] { blockName }.Concat(inputNames));
+
+            // Input states
+            if (StateName != null)
+                dataRows = dataRows.Append(new[] { $"{StateName}->" }.Concat(inputStates));
+
+            // Ranking lines
+            dataRows = dataRows.Concat
+            (
+                Enumerable.Range(0, TopN).Select
+                (
+                    i => new object?[] { i + 1 }.Concat
+                    (
+                        data.Select
+                        (
+                            res => i < res.Length ? valueSelector(res[i]) : defaultValue
+                        )
+                    )
+                )
+            );
+
+            return dataRows;
         }
     }
 }

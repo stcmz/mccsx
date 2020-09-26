@@ -14,7 +14,8 @@ namespace mccsx
 
         public IndexFilter(string[] lines)
         {
-            Debug.Assert(lines.Length > 0);
+            if (lines.Length < 2)
+                throw new FilterException($"Insufficient lines", "index");
 
             string[][] fieldLines = lines
                 .Select(o => o.Split(" \t".ToCharArray(), StringSplitOptions.RemoveEmptyEntries))
@@ -30,7 +31,7 @@ namespace mccsx
             }
             else
             {
-                throw new FilterColumnException("no enough columns");
+                throw new FilterException("Insufficient columns");
             }
         }
 

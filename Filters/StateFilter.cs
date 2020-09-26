@@ -13,7 +13,8 @@ namespace mccsx
 
         public StateFilter(string[] lines)
         {
-            Debug.Assert(lines.Length > 0);
+            if (lines.Length < 2)
+                throw new FilterException($"Insufficient lines", "state");
 
             string[]? headers = lines[0].Split(" \t".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
@@ -38,6 +39,8 @@ namespace mccsx
                     if (nameEnd == 0)
                     {
                         int idx = line.IndexOf(' ');
+                        if (idx == -1)
+                            idx = line.IndexOf('\t');
                         if (idx != -1)
                         {
                             nameBegin = 0;
@@ -47,7 +50,7 @@ namespace mccsx
 
                     if (nameEnd == 0)
                     {
-                        throw new FilterColumnException($"no enough columns on line: {line}");
+                        throw new FilterException($"Insufficient columns on line: {line}");
                     }
 
                     _data[line[nameBegin..nameEnd]] = line[nameEnd..].Trim();
@@ -56,7 +59,7 @@ namespace mccsx
             }
             else
             {
-                throw new FilterColumnException("no enough columns");
+                throw new FilterException("Insufficient columns");
             }
         }
 

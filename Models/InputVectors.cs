@@ -93,13 +93,13 @@ namespace mccsx.Models
             // Verify consistency of index names
             foreach (var recv in vecData)
             {
-                if (recv.IndexName == null)
+                if (indexName == null)
                 {
                     indexName = recv.IndexName;
                 }
                 else if (indexName != recv.IndexName)
                 {
-                    errorMessages.Add($"index name '{recv.IndexName}' different from previous ones '{indexName}' for {recv.VectorName}");
+                    errorMessages.Add($"Index name '{recv.IndexName}' different from previous ones '{indexName}' for {recv.VectorName}");
                 }
             }
 
@@ -114,7 +114,7 @@ namespace mccsx.Models
             var summaryFields = vecData.ToDictionary(o => o.VectorName, o => o.SummaryFields);
 
             // Create the instance
-            return new InputVectors
+            var obj = new InputVectors
             (
                 vecData.Select // Column vectors
                 (
@@ -137,6 +137,10 @@ namespace mccsx.Models
                 summaryFields, // Summary fields
                 errorMessages // Error messages
             );
+
+            Debug.Assert(obj.ColumnCount == vecData.Count);
+
+            return obj;
         }
 
         private static void SummarizeResidues(
@@ -200,7 +204,7 @@ namespace mccsx.Models
             residueInfoByIndex = chainDictByIndex.Keys.ToDictionary(idx => idx, idx => new ResidueInfo
             (
                 string.Join('/', chainDictByIndex[idx].OrderBy(p => p)),
-                string.Join('/', resNameDictByIndex[idx].Select(p => p.GetShortName()).OrderBy(p => p)),
+                string.Join('/', resNameDictByIndex[idx].Select(p => p.GetShortName().ToUpper()).OrderBy(p => p)),
                 string.Join('/', resSeqDictByIndex[idx].OrderBy(p => p)),
                 resSeqDictByIndex[idx].Count == 1 ? resSeqDictByIndex[idx].First() : (int?)null,
                 idx,
@@ -211,7 +215,7 @@ namespace mccsx.Models
             residueInfoBySeq = chainDictBySeq.Keys.ToDictionary(seq => seq, seq => new ResidueInfo
             (
                 string.Join('/', chainDictBySeq[seq].OrderBy(p => p)),
-                string.Join('/', resNameDictBySeq[seq].Select(p => p.GetShortName()).OrderBy(p => p)),
+                string.Join('/', resNameDictBySeq[seq].Select(p => p.GetShortName().ToUpper()).OrderBy(p => p)),
                 seq.ToString(),
                 seq,
                 $"{string.Join('/', resNameDictBySeq[seq].Select(p => p.GetCode()).OrderBy(p => p))}{seq}",
@@ -266,16 +270,23 @@ namespace mccsx.Models
                 }
 
                 // Header row 1
-                var headerRow1 = RawRecvData.CsvColumnHeaders
-                    .Append(StateName)
-                    .Concat(columnKeys)
+                IEnumerable<string?> headerRow1 = RawRecvData.CsvColumnHeaders;
+
+                if (IndexName != null)
+                    headerRow1 = headerRow1.Append(IndexName);
+
+                headerRow1 = headerRow1.Concat(columnKeys)
                     .Concat(stateCounts.Select(o => $"Average({o.Count})"))
                     .Append($"Average({ColumnCount})");
 
                 // Header row 2
-                var headerRow2 = RawRecvData.CsvColumnHeaders
-                    .Select(o => (string?)null)
-                    .Append($"{StateName}->")
+                IEnumerable<string?> headerRow2 = RawRecvData.CsvColumnHeaders.SkipLast(1)
+                    .Select(o => (string?)null);
+
+                if (IndexName != null)
+                    headerRow2 = headerRow2.Append(null);
+
+                headerRow2 = headerRow2.Append($"{StateName}->")
                     .Concat(columnKeys.Select(o => GetColumn(o).Tag))
                     .Concat(stateCounts.Select(o => o.State))
                     .Append("All");
@@ -306,9 +317,9 @@ namespace mccsx.Models
             int width = left + ColumnCount + (StateName != null ? stateCounts.Length : 0);
             int height = top + RowCount + RawRecvData.SummaryRowHeaders.Count;
 
-            // Build the data rows, in the ascending lexical ordering
+            // Build the data rows, in the ascending ordinal ordering
             dataRows = Rows
-                .OrderBy(vec => vec.Name)
+                .OrderBy(vec => ResidueInfo[vec.Name].ResidueSeq)
                 .Select((vec, i) =>
                 {
                     var resInfo = ResidueInfo[vec.Name];
@@ -371,7 +382,7 @@ namespace mccsx.Models
         /// <returns></returns>
         private static string GetRowAverage(int rowNum, int colNum, int cols)
         {
-            return $"=AVERAGE({ExcelColumnHelper.ToCellRef(colNum, rowNum)}:{ExcelColumnHelper.ToCellRef(cols, rowNum + cols - 1)})";
+            return $"=AVERAGE({ExcelColumnHelper.ToCellRef(colNum, rowNum)}:{ExcelColumnHelper.ToCellRef(colNum + cols - 1, rowNum)})";
         }
 
         public IReadOnlyDictionary<string, string>? GetRowTags()
