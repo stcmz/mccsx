@@ -5,6 +5,7 @@ using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 // Workaround for the c# 9.0 preview feature (record)
@@ -35,6 +36,30 @@ namespace mccsx
             return null;
         }
 
+        private static string? ValidateCommonArguments(this CommandResult result)
+        {
+            string? msg = result.ValidateDirectory("--library", true);
+            if (msg != null) return msg;
+
+            if (result["--categories"]?.Tokens.Count == 0)
+                return null;
+
+            var categories = result.ValueForOption<string[]>("--categories");
+
+            if (categories != null)
+            {
+                var allCategories = EnumAnnotationHelper<Category>.Enums
+                    .Select(o => o.ToString()).ToHashSet();
+
+                foreach (var category in categories)
+                {
+                    if (!allCategories.Contains(category))
+                        return $"Unrecognized category '{category}' for: --categories";
+                }
+            }
+
+            return null;
+        }
         private static void AddHandler<TAction, TOptions>(this Command command)
             where TAction : IAction<TOptions>, new()
         {
@@ -87,7 +112,7 @@ namespace mccsx
             // Add a validator to the pipeline for validating directory options
             searchCommand.AddValidator(cr =>
             {
-                string? msg = cr.ValidateDirectory("--library", true);
+                string? msg = cr.ValidateCommonArguments();
                 if (msg != null) return msg;
 
                 msg = cr.ValidateDirectory("--pattern", true);
@@ -174,7 +199,7 @@ namespace mccsx
             // Add a validator to the pipeline for validating directory options
             collateCommand.AddValidator(cr =>
             {
-                string? msg = cr.ValidateDirectory("--library", true);
+                string? msg = cr.ValidateCommonArguments();
                 if (msg != null) return msg;
 
                 if (!cr.ValueForOption<bool>("--vector") &&
@@ -195,6 +220,10 @@ namespace mccsx
                 searchCommand,
                 collateCommand,
             };
+
+            rootCommand.AddGlobalOption(new Option<string[]>(
+                new[] { "-C", "--categories" },
+                $"The categories to run the computation with [default: {string.Join(" ", EnumAnnotationHelper<Category>.Enums)}]"));
 
             // Parse the incoming args and invoke the handler
             return await rootCommand.InvokeAsync(args);

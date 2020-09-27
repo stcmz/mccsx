@@ -41,7 +41,12 @@ namespace mccsx
             var patternCsvs = new Dictionary<Category, FileInfo>();
             var errorList = new List<Category>();
 
-            foreach (var category in EnumAnnotationHelper<Category>.Enums)
+            var categories = options.Categories?
+                .Select(o => Enum.Parse<Category>(o))
+                .Distinct()
+                .ToArray() ?? EnumAnnotationHelper<Category>.Enums;
+
+            foreach (var category in categories)
             {
                 var fi = new FileInfo(Path.Combine(options.Pattern.FullName, $"{patternName}_{category}.csv"));
                 if (!fi.Exists)

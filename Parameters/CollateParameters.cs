@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace mccsx
@@ -7,6 +8,7 @@ namespace mccsx
     (
         DirectoryInfo LibraryDir,
         DirectoryInfo OutputDir,
+        Category[] Categories,
         SimilarityParameters MatrixSimilarity,
         ClusteringParameters InputVectorClustering,
         ClusteringParameters MatrixRowVectorClustering,

@@ -9,5 +9,6 @@ namespace mccsx
         public DirectoryInfo? Out { get; set; }
         public int Count { get; set; }
         public Measure Measure { get; set; }
+        public string[]? Categories { get; set; }
     }
 }

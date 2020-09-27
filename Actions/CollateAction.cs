@@ -63,6 +63,12 @@ namespace mccsx
             if (options.Out == null)
                 options.Out = new DirectoryInfo(Environment.CurrentDirectory);
 
+            // Setup categories
+            var categories = options.Categories?
+                .Select(o => Enum.Parse<Category>(o))
+                .Distinct()
+                .ToArray() ?? EnumAnnotationHelper<Category>.Enums;
+
             // Setup residue filter
             Func<string, IndexFilter>? getIndexFilter = null;
 
@@ -113,6 +119,7 @@ namespace mccsx
             (
                 options.Library,
                 options.Out,
+                categories,
                 new(options.Measure),
                 new(options.IV_Measure, options.IV_Linkage),
                 new(options.SMRow_Measure, options.SMRow_Linkage),
@@ -171,7 +178,7 @@ namespace mccsx
             }
 
             // Run the collation in a multi-threaded manner
-            Parallel.ForEach(EnumAnnotationHelper<Category>.Enums, category =>
+            Parallel.ForEach(Parameters.Categories, category =>
             {
                 Logger.Info($"Collecting data in category {category}");
 
