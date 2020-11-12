@@ -38,7 +38,7 @@ mccsx additionally allows:
 Supported operating systems and compilers
 -----------------------------------------
 
-All systems with [.NET Core SDK v3.1] or higher supported, e.g.
+All systems with [.NET SDK v5.0] or higher supported, e.g.
 * Windows 10 version 1809 or higher
 * macOS 10.13 "High Sierra" or higher
 * most of current Linux distros: Ubuntu, CentOS, openSUSE, RHEL, Fedora, Debian, Alpine, SLES
@@ -48,7 +48,7 @@ Compilation from source code
 
 ### Compiler and SDK
 
-mccsx compiles with [.NET Core SDK v3.1]. Follow the official guide to download and install the SDK before the build. The SDK also comes with the Visual Studio 2019 installer.
+mccsx compiles with [.NET SDK v5.0]. Follow the official guide to download and install the SDK before the build. The SDK also comes with the Visual Studio 2019 installer version 16.8 or higher.
 
 The Visual Studio solution and project files are provided. One may open `mccsx.sln` in Visual Studio 2019 and do a rebuild (predefined profiles for Windows/Linux/macOS are also provided).
 
@@ -61,36 +61,36 @@ Thanks to the complete cross-platform nature of the SDK, one can target any supp
 
 To compile for Linux on any supported system, simply run
 ```
-dotnet publish -c release --no-self-contained -r linux-x64 -p:PublishSingleFile=true
+dotnet publish -c release --no-self-contained -r linux-x64 -p:Platform="Any CPU" -p:PublishSingleFile=true
 ```
 
 Or with MSBuild, simply run
 ```
-msbuild /t:Restore;Clean;Build;Publish /p:Configuration=Release /p:PublishProfile=LinuxFolderProfile
+msbuild /t:Restore;Clean;Build;Publish /p:Configuration=Release /p:Platform="Any CPU" /p:PublishProfile=LinuxFolderProfile
 ```
 
 ### Build for Windows
 
 To compile for Windows on any supported system, simply run
 ```
-dotnet publish -c release --no-self-contained -r win-x64 -p:PublishSingleFile=true -p:PublishReadyToRun=true
+dotnet publish -c release --no-self-contained -r win-x64 -p:Platform="Any CPU" -p:PublishSingleFile=true -p:PublishReadyToRun=true
 ```
 
 Or with MSBuild, simply run
 ```
-msbuild /t:Restore;Clean;Build;Publish /p:Configuration=Release /p:PublishProfile=WinFolderProfile
+msbuild /t:Restore;Clean;Build;Publish /p:Configuration=Release /p:Platform="Any CPU" /p:PublishProfile=WinFolderProfile
 ```
 
 ### Build for macOS
 
 To compile for macOS on any supported system, simply run
 ```
-dotnet publish -c release --no-self-contained -r osx-x64 -p:PublishSingleFile=true
+dotnet publish -c release --no-self-contained -r osx-x64 -p:Platform="Any CPU" -p:PublishSingleFile=true
 ```
 
 Or with MSBuild, simply run
 ```
-msbuild /t:Restore;Clean;Build;Publish /p:Configuration=Release /p:PublishProfile=MacFolderProfile
+msbuild /t:Restore;Clean;Build;Publish /p:Configuration=Release /p:Platform="Any CPU" /p:PublishProfile=MacFolderProfile
 ```
 
 Usage
@@ -136,4 +136,4 @@ Author
 
 
 [Maozi Chen]: https://www.linkedin.com/in/maozichen/
-[.NET Core SDK v3.1]: https://dotnet.microsoft.com/download/dotnet-core/3.1
+[.NET SDK v5.0]: https://dotnet.microsoft.com/download/dotnet/5.0

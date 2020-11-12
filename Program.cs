@@ -1,5 +1,4 @@
 ﻿using mccsx.Helpers;
-using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
@@ -7,13 +6,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-
-// Workaround for the c# 9.0 preview feature (record)
-// Will be removed upon .NET 5.0 release
-namespace System.Runtime.CompilerServices
-{
-    public class IsExternalInit { }
-}
 
 namespace mccsx
 {
@@ -44,14 +36,14 @@ namespace mccsx
             if (result["--categories"]?.Tokens.Count == 0)
                 return null;
 
-            var categories = result.ValueForOption<string[]>("--categories");
+            string[]? categories = result.ValueForOption<string[]>("--categories");
 
             if (categories != null)
             {
                 var allCategories = EnumAnnotationHelper<Category>.Enums
                     .Select(o => o.ToString()).ToHashSet();
 
-                foreach (var category in categories)
+                foreach (string? category in categories)
                 {
                     if (!allCategories.Contains(category))
                         return $"Unrecognized category '{category}' for: --categories";
