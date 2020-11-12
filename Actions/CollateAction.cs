@@ -640,7 +640,7 @@ namespace mccsx
             }
         }
 
-        private void OutputWorkbook(Category category, List<RawRecvData> vecData, InputVectors inputVectors, SimilarityMatrix? similarityMatrix)
+        private void OutputWorkbook(Category category, List<RawRecvData> vecData, InputVectors? inputVectors, SimilarityMatrix? similarityMatrix)
         {
             Debug.Assert(Parameters != null);
 
@@ -686,7 +686,7 @@ namespace mccsx
                     sheetIndex++;
                 }
 
-                if (true)
+                if (inputVectors != null)
                 {
                     var rankings = new Rankings(vecData, inputVectors.StateName, inputVectors.IndexName, Parameters.TopN);
 

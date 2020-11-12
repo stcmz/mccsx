@@ -43,7 +43,7 @@ namespace mccsx
                 var allCategories = EnumAnnotationHelper<Category>.Enums
                     .Select(o => o.ToString()).ToHashSet();
 
-                foreach (string? category in categories)
+                foreach (string category in categories)
                 {
                     if (!allCategories.Contains(category))
                         return $"Unrecognized category '{category}' for: --categories";
