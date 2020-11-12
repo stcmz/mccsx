@@ -24,7 +24,7 @@ namespace mccsx.Helpers
 
         public static TAttribute GetAttribute<TAttribute>(TEnum enumValue)
         {
-            return _attributes[enumValue].OfType<TAttribute>().FirstOrDefault();
+            return _attributes[enumValue].OfType<TAttribute>().First();
         }
 
         public static IEnumerable<TAttribute> GetAttributes<TAttribute>(TEnum enumValue)

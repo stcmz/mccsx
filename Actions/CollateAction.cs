@@ -722,7 +722,7 @@ namespace mccsx
             return Path.Combine(Parameters.OutputDir.FullName, fileName);
         }
 
-        private void GetHueColorScheme(
+        private static void GetHueColorScheme(
             IReadOnlyList<string> tags,
             double saturation,
             double value,
