@@ -301,8 +301,12 @@ namespace mccsx.Models
                 stateCounts = Array.Empty<(string State, int Count, int Pos)>();
 
                 // Only one header row
-                var headerRow = RawRecvData.CsvColumnHeaders
-                    .Concat(columnKeys)
+                IEnumerable<string?> headerRow = RawRecvData.CsvColumnHeaders;
+
+                if (IndexName != null)
+                    headerRow = headerRow.Append(IndexName);
+
+                headerRow = headerRow.Concat(columnKeys)
                     .Append($"Average({ColumnCount})");
 
                 headerRows = new[] { headerRow };
