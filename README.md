@@ -129,6 +129,36 @@ To carry out cluster analysis of the receptor structures of different proteins (
 mccsx collate -l scoring_output -o report -c -M correlation -L farthest -v -f "gpcrn {}: -1234"
 ```
 
+Citations
+---------
+
+### The Original MCCS Paper
+
+**Maozi Chen**, Zhiwei Feng, Siyi Wang, Weiwei Lin, Xiang-Qun Xie. **MCCS, a scoring function-based characterization method for protein-ligand binding**. *Briefings in Bioinformatics*. 2020, October 14.
+
+https://doi.org/10.1093/bib/bbaa239
+
+https://pubmed.ncbi.nlm.nih.gov/33051641/
+
+
+### MCCS in COVID-19 Drug Repurposing
+
+Zhiwei Feng, **Maozi Chen**, Ying Xue, Tianjian Liang, Hui Chen, Yuehan Zhou, Thomas Nolin, and Xiang-Qun Xie. **MCCS: A Novel Recognition Pattern-based Method for Fast Track Discovery of anti-SARS-CoV-2 drugs**. *Briefings in Bioinformatics*. 2020, October 20.
+
+https://doi.org/10.1093/bib/bbaa260
+
+https://pubmed.ncbi.nlm.nih.gov/33078827/
+
+
+### MCCS on GPCR Modulators
+
+Feng, Zhiwei; Liang, Tianjian; Wang, Siyi; **Chen, Maozi**; Hou, Tianling; Zhao, Jack; Chen, Hui; Zhou, Yuehan; Xie, Xiang-Qun. **Binding Characterization of GPCRs-Modulator by Molecular Complex Characterizing System (MCCS)**. *ACS Chemical Neuroscience*. 2020, 11, 20, 3333–3345.
+
+https://doi.org/10.1021/acschemneuro.0c00457
+
+https://pubmed.ncbi.nlm.nih.gov/32941011/
+
+
 Author
 --------------
 
