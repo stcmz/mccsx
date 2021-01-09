@@ -188,7 +188,7 @@ namespace mccsx
                     "The sorting rule for the rows of input vectors in heatmaps"),
                 new Option<string>(
                     new[] { "-f", "--filter" },
-                    "The filter script to be applied to the residue sequences that is invoked with the prefix name of input conformation substituting the {} placeholder if present or appended to the script if otherwise (The script must return a headed table consisting of two columns: residue sequence, residue index)"),
+                    "The filter script to be applied to the residue sequences that is invoked with the prefix name of input conformation substituting the {} placeholder if present (The script must return a headed table consisting of two columns: residue sequence, residue index)"),
                 new Option<string>(
                     new[] { "-F", "--state_filter" },
                     "The filter script to be used in determining the state of the inputs (The script must return a headed table consisting of two columns: input name, input state)"),

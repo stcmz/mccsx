@@ -74,11 +74,7 @@ namespace mccsx
 
             if (!string.IsNullOrEmpty(options.Filter))
             {
-                string commandLine;
-                if (options.Filter.Contains("{}"))
-                    commandLine = options.Filter.Trim().Replace("{}", "{0}");
-                else
-                    commandLine = options.Filter.Trim() + " {0}";
+                string commandLine = options.Filter.Trim().Replace("{}", "{0}");
 
                 var (program, arguments) = commandLine.SplitCommandLine();
 
