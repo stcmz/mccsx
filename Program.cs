@@ -11,6 +11,12 @@ namespace mccsx
 {
     internal static class Program
     {
+        private static T ValueForOption<T>(this CommandResult result, string alias, T defaultValue = default)
+            where T : struct
+        {
+            return result[alias]?.GetValueOrDefault<T>() ?? defaultValue;
+        }
+
         private static string? ValidateDirectory(this CommandResult result, string alias, bool required)
         {
             var opt = result[alias];
@@ -33,10 +39,11 @@ namespace mccsx
             string? msg = result.ValidateDirectory("--library", true);
             if (msg != null) return msg;
 
-            if (result["--categories"]?.Tokens.Count == 0)
+            var opt = result["--categories"];
+            if (opt == null || opt.Tokens.Count == 0)
                 return null;
 
-            string[]? categories = result.ValueForOption<string[]>("--categories");
+            string[]? categories = opt.GetValueOrDefault<string[]>();
 
             if (categories != null)
             {
@@ -52,6 +59,7 @@ namespace mccsx
 
             return null;
         }
+
         private static void AddHandler<TAction, TOptions>(this Command command)
             where TAction : IAction<TOptions>, new()
         {
