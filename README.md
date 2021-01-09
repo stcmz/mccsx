@@ -50,7 +50,7 @@ Compilation from source code
 
 mccsx compiles with [.NET SDK v5.0]. Follow the official guide to download and install the SDK before the build. The SDK also comes with the Visual Studio 2019 installer version 16.8 or higher.
 
-The Visual Studio solution and project files are provided. One may open `mccsx.sln` in Visual Studio 2019 and do a rebuild (predefined profiles for Windows/Linux/macOS are also provided).
+The Visual Studio solution and project files, as well as the vscode settings are provided. One may open `mccsx.sln` in Visual Studio 2019 and do a rebuild (predefined profiles for Windows/Linux/macOS are also provided), or open the cloned repository in vscode and run the build task.
 
 The generated objects are placed in the `obj` folder, and the generated executable are placed in the `bin` folder.
 
