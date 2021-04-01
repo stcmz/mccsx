@@ -101,10 +101,7 @@ namespace mccsx
                 throw new RawRecvDataFormatException($"Not exactly 4 summary rows", csvFilePath);
             }
 
-            string name = Path.GetFileNameWithoutExtension(csvFilePath);
-            int idx = name.LastIndexOf('_');
-
-            return new(name[0..idx], residueScores.ToArray(), summaryFields, inputState, indexFilter?.IndexName);
+            return new(inputName, residueScores.ToArray(), summaryFields, inputState, indexFilter?.IndexName);
         }
     }
 }
