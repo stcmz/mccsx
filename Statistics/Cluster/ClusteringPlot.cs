@@ -15,7 +15,7 @@ namespace mccsx.Statistics
             int width,
             bool autoHeight,
             bool leftAlignedBadVectors,
-            bool upToDownForVerticalText,
+            bool topDownForVerticalText,
             (double scale, Color color)[] colorScheme,
             (string name, Color color)[]? colorBarScheme,
             Color lineColor,
@@ -75,8 +75,9 @@ namespace mccsx.Statistics
             int labelSpacing = (int)Math.Round(Math.Max(2, minSide / 1000.0));
             var cell = new Size((int)Math.Round((double)heatmap.Width / vectors.ColumnCount - cellSpacing), (int)Math.Round((double)heatmap.Height / vectors.RowCount - cellSpacing));
             var fullCell = new Size(cell.Width + cellSpacing, cell.Height + cellSpacing);
-            int labelTextHeight = Math.Min(maxTextHeight, Math.Max(minTextHeight, cell.Height));
-            int cellLabelDash = labelTextHeight;
+            int hLabelTextHeight = Math.Min(maxTextHeight, Math.Max(minTextHeight, cell.Height));
+            int vLabelTextHeight = Math.Min(maxTextHeight, Math.Max(minTextHeight, cell.Width));
+            int cellLabelDash = hLabelTextHeight;
 
             int diffx = (cell.Width + cellSpacing) * vectors.ColumnCount - heatmap.Width;
             int diffy = (cell.Height + cellSpacing) * vectors.RowCount - heatmap.Height;
@@ -197,7 +198,7 @@ namespace mccsx.Statistics
                     }
                 }
 
-                using var rlabelFont = new Font(FontFamily.GenericSansSerif, labelTextHeight, GraphicsUnit.Pixel);
+                using var rlabelFont = new Font(FontFamily.GenericSansSerif, hLabelTextHeight, GraphicsUnit.Pixel);
                 using var dendroPen = new Pen(lineColor, cellSpacing);
 
                 //*****************************/
@@ -251,7 +252,7 @@ namespace mccsx.Statistics
                     anchor.Y += cellLabelDash + labelSpacing;
 
                     // draw row colors label
-                    if (upToDownForVerticalText)
+                    if (topDownForVerticalText)
                     {
                         g.DrawStringRotated(
                             vectors.RowTagName,
@@ -276,6 +277,8 @@ namespace mccsx.Statistics
                 //*****************************/
                 //   Draw the column labels   */
                 //*****************************/
+                using var clabelFont = new Font(FontFamily.GenericSansSerif, vLabelTextHeight, GraphicsUnit.Pixel);
+
                 for (int i = 0; i < vectors.ColumnCount; i++)
                 {
                     var anchor = new Point(heatmap.Left + colidx[i] * fullCell.Width + cellSpacing + cell.Width / 2, clabel.Top);
@@ -286,16 +289,16 @@ namespace mccsx.Statistics
 
                     // draw column labels
                     string label = vectors.ColumnKeys[i].ToString()!;
-                    var textdimen = g.MeasureString(label, rlabelFont);
+                    var textdimen = g.MeasureString(label, clabelFont);
 
-                    if (upToDownForVerticalText)
+                    if (topDownForVerticalText)
                     {
                         g.DrawStringRotated(
                             label,
                             90,
-                            rlabelFont,
+                            clabelFont,
                             labelBrush,
-                            anchor.X - rlabelFont.Height / 2 - cellSpacing + rlabelFont.Height,
+                            anchor.X - clabelFont.Height / 2 - cellSpacing + clabelFont.Height,
                             anchor.Y);
                     }
                     else
@@ -303,9 +306,9 @@ namespace mccsx.Statistics
                         g.DrawStringRotated(
                             label,
                             -90,
-                            rlabelFont,
+                            clabelFont,
                             labelBrush,
-                            anchor.X - rlabelFont.Height / 2 - cellSpacing,
+                            anchor.X - clabelFont.Height / 2 - cellSpacing,
                             anchor.Y + textdimen.Width);
                     }
 
@@ -320,14 +323,14 @@ namespace mccsx.Statistics
                         anchor.Y -= cellLabelDash + labelSpacing + (int)textdimen.Width;
 
                         // draw column labels
-                        if (upToDownForVerticalText)
+                        if (topDownForVerticalText)
                         {
                             g.DrawStringRotated(
                                 label,
                                 90,
-                                rlabelFont,
+                                clabelFont,
                                 labelBrush,
-                                anchor.X - rlabelFont.Height / 2 - cellSpacing + rlabelFont.Height,
+                                anchor.X - clabelFont.Height / 2 - cellSpacing + clabelFont.Height,
                                 anchor.Y);
                         }
                         else
@@ -335,9 +338,9 @@ namespace mccsx.Statistics
                             g.DrawStringRotated(
                                 label,
                                 -90,
-                                rlabelFont,
+                                clabelFont,
                                 labelBrush,
-                                anchor.X - rlabelFont.Height / 2 - cellSpacing,
+                                anchor.X - clabelFont.Height / 2 - cellSpacing,
                                 anchor.Y + textdimen.Width);
                         }
                     }
@@ -359,10 +362,10 @@ namespace mccsx.Statistics
                     // draw column colors label
                     g.DrawString(
                         vectors.ColumnTagName,
-                        rlabelFont,
+                        clabelFont,
                         labelBrush,
                         anchor.X,
-                        anchor.Y - rlabelFont.Height / 2);
+                        anchor.Y - clabelFont.Height / 2);
                 }
 
                 //*****************************/
@@ -409,22 +412,22 @@ namespace mccsx.Statistics
                     var td2 = g.MeasureString(rowClustInfo.ClusterMethod, rlabelFont);
                     int offset = (int)(Math.Min(td1.Width, td2.Width) / 2);
 
-                    if (upToDownForVerticalText)
+                    if (topDownForVerticalText)
                     {
                         g.DrawStringRotated(
                             rowClustInfo.MetricName,
                             90,
                             rlabelFont,
                             labelBrush,
-                            anchor.X + labelTextHeight - labelTextHeight / 2 - cellSpacing + rlabelFont.Height,
+                            anchor.X + hLabelTextHeight - hLabelTextHeight / 2 - cellSpacing + rlabelFont.Height,
                             anchor.Y);
-                        g.DrawString("+", rlabelFont, labelBrush, anchor.X - labelTextHeight / 2 - cellSpacing, anchor.Y + offset);
+                        g.DrawString("+", rlabelFont, labelBrush, anchor.X - hLabelTextHeight / 2 - cellSpacing, anchor.Y + offset);
                         g.DrawStringRotated(
                             rowClustInfo.ClusterMethod,
                             90,
                             rlabelFont,
                             labelBrush,
-                            anchor.X - labelTextHeight - labelTextHeight / 2 - cellSpacing + rlabelFont.Height,
+                            anchor.X - hLabelTextHeight - hLabelTextHeight / 2 - cellSpacing + rlabelFont.Height,
                             anchor.Y);
                     }
                     else
@@ -436,7 +439,7 @@ namespace mccsx.Statistics
                             labelBrush,
                             anchor.X - td1.Height * 3 / 2 - cellSpacing,
                             anchor.Y + td1.Width);
-                        g.DrawString("+", rlabelFont, labelBrush, anchor.X - labelTextHeight / 2 - cellSpacing, anchor.Y + offset);
+                        g.DrawString("+", rlabelFont, labelBrush, anchor.X - hLabelTextHeight / 2 - cellSpacing, anchor.Y + offset);
                         g.DrawStringRotated(
                             rowClustInfo.ClusterMethod,
                             -90,
@@ -488,9 +491,9 @@ namespace mccsx.Statistics
                     anchor.X += cellLabelDash / 2 + labelSpacing;
 
                     int offset = (int)(Math.Min(g.MeasureString(columnClustInfo.MetricName, rlabelFont).Width, g.MeasureString(columnClustInfo.ClusterMethod, rlabelFont).Width) / 2);
-                    g.DrawString(columnClustInfo.MetricName, rlabelFont, labelBrush, anchor.X, anchor.Y - labelTextHeight - labelTextHeight / 2);
-                    g.DrawString("+", rlabelFont, labelBrush, anchor.X + offset, anchor.Y - labelTextHeight / 2);
-                    g.DrawString(columnClustInfo.ClusterMethod, rlabelFont, labelBrush, anchor.X, anchor.Y + labelTextHeight - labelTextHeight / 2);
+                    g.DrawString(columnClustInfo.MetricName, rlabelFont, labelBrush, anchor.X, anchor.Y - hLabelTextHeight - hLabelTextHeight / 2);
+                    g.DrawString("+", rlabelFont, labelBrush, anchor.X + offset, anchor.Y - hLabelTextHeight / 2);
+                    g.DrawString(columnClustInfo.ClusterMethod, rlabelFont, labelBrush, anchor.X, anchor.Y + hLabelTextHeight - hLabelTextHeight / 2);
                 }
             }
             image.Save(filepath);
