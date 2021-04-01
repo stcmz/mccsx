@@ -73,6 +73,7 @@ namespace mccsx
                 options.Count,
                 new(options.Measure),
                 patternName,
+                options.Recursive,
                 patternCsvs
             );
 
@@ -104,7 +105,9 @@ namespace mccsx
                 var results = new List<Result>();
 
                 int count = 0;
-                foreach (var candidateFile in Parameters.LibraryDir.EnumerateFiles($"*_{category}.csv", SearchOption.TopDirectoryOnly))
+                var option = Parameters.Recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+
+                foreach (var candidateFile in Parameters.LibraryDir.EnumerateFiles($"*_{category}.csv", option))
                 {
                     // Read and parse the csv file
                     string[] csvLines = File.ReadAllLines(candidateFile.FullName);
@@ -142,7 +145,8 @@ namespace mccsx
                         .OrderByDescending(o => o.Similarity)
                         .First();
 
-                    string ligandName = candidateFile.Name[..^(1 + category.ToString().Length + 4)];
+                    string relativePath = Path.GetRelativePath(Parameters.LibraryDir.FullName, candidateFile.FullName);
+                    string ligandName = relativePath[..^(1 + category.ToString().Length + 4)];
 
                     results.Add(new(ligandName, best.ConfName, best.Similarity));
                     count++;
@@ -164,8 +168,9 @@ namespace mccsx
                 {
                     // Extract the conformation id
                     int confId = int.Parse(Regex.Match(confName, @"(\d+)").Groups[1].Value);
+                    string secLigand = ligand.Replace('/', '_').Replace('\\', '_');
 
-                    string outputDir = Path.Combine(categoryDir, $"D{rank++}C{confId}_{ligand}");
+                    string outputDir = Path.Combine(categoryDir, $"D{rank++}C{confId}_{secLigand}");
                     Directory.CreateDirectory(outputDir);
 
                     // Copy the best matched conformation to the output directory

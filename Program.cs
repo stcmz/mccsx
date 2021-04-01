@@ -107,6 +107,9 @@ namespace mccsx
                     new[] { "-m", "--measure" },
                     () => Measure.cosine,
                     "The similarity measurement algorithm to be used in matching a candidate RECV in the library with a pattern RECV"),
+                new Option<bool>(
+                    new[] { "-r", "--recursive" },
+                    "Locate RECVs in the library subdirectories recursively"),
             };
 
             // Add a validator to the pipeline for validating directory options
@@ -182,6 +185,9 @@ namespace mccsx
                 new Option<bool>(
                     new[] { "-y", "--overwrite" },
                     "Force to overwriting all existing output files, the default behavior is to skip existing files"),
+                new Option<bool>(
+                    new[] { "-r", "--recursive" },
+                    "Locate RECVs in the library subdirectories recursively"),
                 new Option<RowOrdering>(
                     new[] { "--sort_iv_rows" },
                     () => RowOrdering.sequence,

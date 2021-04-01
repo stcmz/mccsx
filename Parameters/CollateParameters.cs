@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 
 namespace mccsx
@@ -20,6 +19,7 @@ namespace mccsx
         bool WorkbookEnabled,
         int TopN,
         bool Overwrite,
+        bool Recursive,
         RowOrdering InputVectorRowsOrdering,
         Func<string, IndexFilter>? GetIndexFilter,
         Func<StateFilter>? GetStateFilter

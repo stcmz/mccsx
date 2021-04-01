@@ -20,6 +20,7 @@ namespace mccsx
         public bool Workbook { get; set; }
         public int Top { get; set; }
         public bool Overwrite { get; set; }
+        public bool Recursive { get; set; }
         public RowOrdering Sort_IV_Rows { get; set; }
         public string[]? Categories { get; set; }
         public string? Filter { get; set; }

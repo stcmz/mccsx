@@ -10,6 +10,7 @@ namespace mccsx
         int ResultCount,
         SimilarityParameters Similarity,
         string PatternName,
+        bool Recursive,
         Dictionary<Category, FileInfo> PatternCsvs
     );
 }

@@ -127,6 +127,7 @@ namespace mccsx
                 options.Workbook,
                 options.Top,
                 options.Overwrite,
+                options.Recursive,
                 options.Sort_IV_Rows,
                 getIndexFilter,
                 getStateFilter
@@ -144,7 +145,7 @@ namespace mccsx
             PrintKeyParameters();
 
             // Prefetch inputs
-            var inputNames = Parameters.LibraryDir
+            string[] inputNames = Parameters.LibraryDir
                 .EnumerateFiles($"*.pdbqt", SearchOption.TopDirectoryOnly)
                 .Select(o => Path.GetFileNameWithoutExtension(o.Name))
                 .ToArray();
@@ -161,7 +162,7 @@ namespace mccsx
                 if (Parameters.GetIndexFilter != null)
                 {
                     indexFilters = new Dictionary<string, IndexFilter?>();
-                    foreach (var inputName in inputNames)
+                    foreach (string inputName in inputNames)
                     {
                         indexFilters[inputName] = Parameters.GetIndexFilter.Invoke(inputName);
                     }
@@ -180,12 +181,14 @@ namespace mccsx
 
                 // Collect vectors for the category
                 var vecData = new List<RawRecvData>();
+                var option = Parameters.Recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
 
-                foreach (var inputCsvFile in Parameters.LibraryDir.EnumerateFiles($"*_{category}.csv", SearchOption.TopDirectoryOnly))
+                foreach (var inputCsvFile in Parameters.LibraryDir.EnumerateFiles($"*_{category}.csv", option))
                 {
                     try
                     {
-                        string inputName = inputCsvFile.Name[0..^(category.ToString().Length + 5)];
+                        string relativePath = Path.GetRelativePath(Parameters.LibraryDir.FullName, inputCsvFile.FullName);
+                        string inputName = relativePath[..^(1 + category.ToString().Length + 4)];
 
                         // Read and validate the state
                         string? state = null;
