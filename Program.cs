@@ -110,6 +110,10 @@ namespace mccsx
                 new Option<bool>(
                     new[] { "-r", "--recursive" },
                     "Locate RECVs in the library subdirectories recursively"),
+                new Option<NamingScheme>(
+                    new[] { "--naming" },
+                    () => NamingScheme.filepath,
+                    "The naming scheme for the input vectors"),
             };
 
             // Add a validator to the pipeline for validating directory options
@@ -188,6 +192,10 @@ namespace mccsx
                 new Option<bool>(
                     new[] { "-r", "--recursive" },
                     "Locate RECVs in the library subdirectories recursively"),
+                new Option<NamingScheme>(
+                    new[] { "--naming" },
+                    () => NamingScheme.filepath,
+                    "The naming scheme for the input vectors"),
                 new Option<RowOrdering>(
                     new[] { "--sort_iv_rows" },
                     () => RowOrdering.sequence,

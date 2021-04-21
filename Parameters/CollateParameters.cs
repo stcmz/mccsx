@@ -20,6 +20,7 @@ namespace mccsx
         int TopN,
         bool Overwrite,
         bool Recursive,
+        NamingScheme Naming,
         RowOrdering InputVectorRowsOrdering,
         Func<string, IndexFilter>? GetIndexFilter,
         Func<StateFilter>? GetStateFilter

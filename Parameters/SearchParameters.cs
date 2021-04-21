@@ -11,6 +11,7 @@ namespace mccsx
         SimilarityParameters Similarity,
         string PatternName,
         bool Recursive,
+        NamingScheme Naming,
         Dictionary<Category, FileInfo> PatternCsvs
     );
 }

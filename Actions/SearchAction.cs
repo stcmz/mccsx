@@ -74,13 +74,14 @@ namespace mccsx
                 new(options.Measure),
                 patternName,
                 options.Recursive,
+                options.Naming,
                 patternCsvs
             );
 
             return 0;
         }
 
-        private record Result(string Ligand, string ConfName, double Similarity);
+        private record Result(string InputCsvFile, string InputName, string ConfName, double Similarity);
 
         public int Run()
         {
@@ -145,10 +146,9 @@ namespace mccsx
                         .OrderByDescending(o => o.Similarity)
                         .First();
 
-                    string relativePath = Path.GetRelativePath(Parameters.LibraryDir.FullName, candidateFile.FullName);
-                    string ligandName = relativePath[..^(1 + category.ToString().Length + 4)];
+                    string inputName = GetInputName(candidateFile.FullName, 1 + category.ToString().Length);
 
-                    results.Add(new(ligandName, best.ConfName, best.Similarity));
+                    results.Add(new(candidateFile.FullName, inputName, best.ConfName, best.Similarity));
                     count++;
                 }
 
@@ -164,22 +164,22 @@ namespace mccsx
 
                 // Output top N best matches in separate directories
                 int rank = 1;
-                foreach (var (ligand, confName, similarity) in bestMatches)
+                foreach (var (inputCsvFile, inputName, confName, similarity) in bestMatches)
                 {
                     // Extract the conformation id
                     int confId = int.Parse(Regex.Match(confName, @"(\d+)").Groups[1].Value);
-                    string secLigand = ligand.Replace('/', '_').Replace('\\', '_');
 
-                    string outputDir = Path.Combine(categoryDir, $"D{rank++}C{confId}_{secLigand}");
+                    string secureLigandName = inputName.Replace('/', '_').Replace('\\', '_');
+
+                    string outputDir = Path.Combine(categoryDir, $"D{rank++}C{confId}_{secureLigandName}");
                     Directory.CreateDirectory(outputDir);
 
                     // Copy the best matched conformation to the output directory
-                    string inputPdbqtFile = Path.Combine(Parameters.LibraryDir.FullName, $"{ligand}.pdbqt");
+                    string inputPdbqtFile = $"{inputCsvFile[..^(1 + category.ToString().Length + 4)]}.pdbqt";
                     string outputPdbqtFile = Path.Combine(outputDir, $"{Parameters.PatternName}.pdbqt");
                     CopyBestConformation(inputPdbqtFile, outputPdbqtFile, confId);
 
                     // Copy the best matched vector to the output directory
-                    string inputCsvFile = Path.Combine(Parameters.LibraryDir.FullName, $"{ligand}_{category}.csv");
                     string outputCsvFile = Path.Combine(outputDir, $"{Parameters.PatternName}_{category}.csv");
 
                     string[] headers = new[] { "Chain ID", "Residue name", "Residue sequence", confName };
@@ -192,11 +192,29 @@ namespace mccsx
                 // Output summarized search report in CSV
                 string outputReportFile = Path.Combine(Parameters.OutputDir.FullName, $"searchreport_{category}.csv");
                 File.WriteAllLines(outputReportFile, results
-                    .Select(o => new[] { o.Ligand, o.ConfName, o.Similarity.ToString() })
+                    .Select(o => new[] { o.InputName, o.ConfName, o.Similarity.ToString() })
                     .FormatCsvRows(new[] { "Drug", "Best Conf", $"{Parameters.Similarity.Measure.Name} Similarity" }));
             });
 
             return 0;
+        }
+
+        private string GetInputName(string inputPath, int tailLen = 0)
+        {
+            Debug.Assert(Parameters != null);
+
+            string relativePath = Path.GetRelativePath(Parameters.LibraryDir.FullName, inputPath);
+            int extLen = Path.GetExtension(relativePath).Length;
+            relativePath = relativePath[..^(tailLen + extLen)];
+
+            return Parameters.Naming switch
+            {
+                NamingScheme.dirpath => Path.GetDirectoryName(relativePath)!,
+                NamingScheme.dirname => Path.GetFileName(Path.GetDirectoryName(relativePath))!,
+                NamingScheme.filepath => relativePath,
+                NamingScheme.filestem => Path.GetFileName(relativePath)!,
+                _ => throw new NotSupportedException(),
+            };
         }
 
         private static string? GetPatternName(DirectoryInfo di)

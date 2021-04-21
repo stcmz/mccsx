@@ -128,6 +128,7 @@ namespace mccsx
                 options.Top,
                 options.Overwrite,
                 options.Recursive,
+                options.Naming,
                 options.Sort_IV_Rows,
                 getIndexFilter,
                 getStateFilter
@@ -145,9 +146,10 @@ namespace mccsx
             PrintKeyParameters();
 
             // Prefetch inputs
+            var option = Parameters.Recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
             string[] inputNames = Parameters.LibraryDir
-                .EnumerateFiles($"*.pdbqt", SearchOption.TopDirectoryOnly)
-                .Select(o => Path.GetFileNameWithoutExtension(o.Name))
+                .EnumerateFiles($"*.pdbqt", option)
+                .Select(o => GetInputName(o.FullName))
                 .ToArray();
 
             Logger.Info($"Found {inputNames.Length} input in library");
@@ -181,14 +183,12 @@ namespace mccsx
 
                 // Collect vectors for the category
                 var vecData = new List<RawRecvData>();
-                var option = Parameters.Recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
 
                 foreach (var inputCsvFile in Parameters.LibraryDir.EnumerateFiles($"*_{category}.csv", option))
                 {
                     try
                     {
-                        string relativePath = Path.GetRelativePath(Parameters.LibraryDir.FullName, inputCsvFile.FullName);
-                        string inputName = relativePath[..^(1 + category.ToString().Length + 4)];
+                        string inputName = GetInputName(inputCsvFile.FullName, 1 + category.ToString().Length);
 
                         // Read and validate the state
                         string? state = null;
@@ -719,6 +719,24 @@ namespace mccsx
             );
 
             return Path.Combine(Parameters.OutputDir.FullName, fileName);
+        }
+
+        private string GetInputName(string inputPath, int tailLen = 0)
+        {
+            Debug.Assert(Parameters != null);
+
+            string relativePath = Path.GetRelativePath(Parameters.LibraryDir.FullName, inputPath);
+            int extLen = Path.GetExtension(relativePath).Length;
+            relativePath = relativePath[..^(tailLen + extLen)];
+
+            return Parameters.Naming switch
+            {
+                NamingScheme.dirpath => Path.GetDirectoryName(relativePath)!,
+                NamingScheme.dirname => Path.GetFileName(Path.GetDirectoryName(relativePath))!,
+                NamingScheme.filepath => relativePath,
+                NamingScheme.filestem => Path.GetFileName(relativePath)!,
+                _ => throw new NotSupportedException(),
+            };
         }
 
         private static void GetHueColorScheme(
