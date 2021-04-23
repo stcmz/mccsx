@@ -22,7 +22,7 @@ namespace mccsx
         protected const string InputVectorsHeatmap = "inputvectors_{0}.png";
         protected const string InputVectorsClusteredHeatmap = "inputvectors_[{2}+{3}]_{0}.png";
 
-        protected const string SimilarityMatrixCsv = "similaritymatrix_{0}.csv";
+        protected const string SimilarityMatrixCsv = "similaritymatrix_{1}_{0}.csv";
         protected const string SimilarityMatrixClustersCsv = "clustered_similaritymatrix_{1}_[{4}+{5}]_{0}.csv";
         protected const string SimilarityMatrixHeatmap = "similaritymatrix_{1}_{0}.png";
         protected const string SimilarityMatrixClusteredHeatmap = "similaritymatrix_{1}_row[{4}+{5}]_col[{6}+{7}]_{0}.png";
