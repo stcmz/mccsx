@@ -229,7 +229,7 @@ namespace mccsx
             });
 
             // Create a root command with two sub-commands
-            var rootCommand = new RootCommand("A cross-platform analysis tool for residue energy contribution vectors by ryan@imozo.cn")
+            var rootCommand = new RootCommand("A cross-platform analysis tool for residue energy contribution vectors by Maozi Chen")
             {
                 searchCommand,
                 collateCommand,
