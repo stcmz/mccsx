@@ -81,7 +81,9 @@ namespace mccsx
             return 0;
         }
 
-        private record Result(string InputCsvFile, string InputName, string ConfName, double Similarity);
+        private record ConfSimilarity(string ConfName, double Similarity);
+        private record SummaryResult(string InputCsvFile, string InputName, ConfSimilarity BestConfSim);
+        private record DetailedResult(string InputCsvFile, string InputName, ConfSimilarity[] ConfSimilarities);
 
         public int Run()
         {
@@ -103,7 +105,11 @@ namespace mccsx
                     .ToDictionary(o => o[0], o => double.TryParse(o[1], out double val) ? val : 0.0);
 
                 var patternVec = new MapVector<string>(patternResDict, Parameters.PatternName);
-                var results = new List<Result>();
+
+                // Buffers to store overall summary results and top N detailed results
+                var comparer = Comparer<DetailedResult>.Create((a, b) => b.ConfSimilarities[0].Similarity.CompareTo(a.ConfSimilarities[0].Similarity));
+                var topDetailedResults = new SortedSet<DetailedResult>(comparer);
+                var summaryResults = new List<SummaryResult>();
 
                 int count = 0;
                 var option = Parameters.Recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
@@ -141,14 +147,21 @@ namespace mccsx
                         ).ToArray();
 
                     // Sort to find the best conformation
-                    var best = vecs
-                        .Select(o => new { ConfName = o.Name, Similarity = Parameters.Similarity.Measure.Measure(o, patternVec) })
+                    var confSims = vecs
+                        .Select(o => new ConfSimilarity(o.Name, Parameters.Similarity.Measure.Measure(o, patternVec)))
                         .OrderByDescending(o => o.Similarity)
-                        .First();
+                        .ToArray();
 
                     string inputName = GetInputName(candidateFile.FullName, 1 + category.ToString().Length);
 
-                    results.Add(new(candidateFile.FullName, inputName, best.ConfName, best.Similarity));
+                    summaryResults.Add(new(candidateFile.FullName, inputName, confSims[0]));
+                    topDetailedResults.Add(new(candidateFile.FullName, inputName, confSims));
+
+                    if (topDetailedResults.Count > 0 && topDetailedResults.Count > Parameters.ResultCount)
+                    {
+                        topDetailedResults.Remove(topDetailedResults.Max!);
+                    }
+
                     count++;
                 }
 
@@ -158,16 +171,14 @@ namespace mccsx
                 string categoryDir = Path.Combine(Parameters.OutputDir.FullName, category.ToString());
                 Directory.CreateDirectory(categoryDir);
 
-                results = results.OrderByDescending(o => o.Similarity).ToList();
-
-                var bestMatches = results.Take(Parameters.ResultCount);
+                summaryResults = summaryResults.OrderByDescending(o => o.BestConfSim.Similarity).ToList();
 
                 // Output top N best matches in separate directories
                 int rank = 1;
-                foreach (var (inputCsvFile, inputName, confName, similarity) in bestMatches)
+                foreach (var (inputCsvFile, inputName, confSims) in topDetailedResults)
                 {
                     // Extract the conformation id
-                    int confId = int.Parse(Regex.Match(confName, @"(\d+)").Groups[1].Value);
+                    int confId = int.Parse(Regex.Match(confSims[0].ConfName, @"(\d+)").Groups[1].Value);
 
                     string secureLigandName = inputName.Replace('/', '_').Replace('\\', '_');
 
@@ -181,18 +192,25 @@ namespace mccsx
 
                     // Copy the best matched vector to the output directory
                     string outputCsvFile = Path.Combine(outputDir, $"{Parameters.PatternName}_{category}.csv");
-
-                    string[] headers = new[] { "Chain ID", "Residue name", "Residue sequence", confName };
-                    string[][]? csvContent = File.ReadAllLines(inputCsvFile)
-                        .ParseCsvRows(headers)
+                    string[] vecCsvHeaders = new[] { "Chain ID", "Residue name", "Residue sequence", confSims[0].ConfName };
+                    string[][]? vecCsvContent = File.ReadAllLines(inputCsvFile)
+                        .ParseCsvRows(vecCsvHeaders)
                         .ToArray();
-                    File.WriteAllLines(outputCsvFile, csvContent.FormatCsvRows(headers));
+                    File.WriteAllLines(outputCsvFile, vecCsvContent.FormatCsvRows(vecCsvHeaders));
+
+                    // Write all conformation similarities to the output directory
+                    string confSimCsvFile = Path.Combine(outputDir, $"{Parameters.PatternName}_confsim_{category}.csv");
+                    string[] confSimCsvHeaders = new[] { "Conf Name", "Similarity" };
+                    object[][] confSimCsvContent = confSims
+                        .Select(o => new object[] { o.ConfName, o.Similarity })
+                        .ToArray();
+                    File.WriteAllLines(confSimCsvFile, confSimCsvContent.FormatCsvRows(confSimCsvHeaders));
                 }
 
                 // Output summarized search report in CSV
                 string outputReportFile = Path.Combine(Parameters.OutputDir.FullName, $"searchreport_{category}.csv");
-                File.WriteAllLines(outputReportFile, results
-                    .Select(o => new[] { o.InputName, o.ConfName, o.Similarity.ToString() })
+                File.WriteAllLines(outputReportFile, summaryResults
+                    .Select(o => new[] { o.InputName, o.BestConfSim.ConfName, o.BestConfSim.Similarity.ToString() })
                     .FormatCsvRows(new[] { "Drug", "Best Conf", $"{Parameters.Similarity.Measure.Name} Similarity" }));
             });
 
