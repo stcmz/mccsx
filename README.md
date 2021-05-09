@@ -1,5 +1,7 @@
 mccsx
 =====
+![build workflow](https://github.com/stcmz/mccsx/actions/workflows/build.yml/badge.svg)
+![release workflow](https://github.com/stcmz/mccsx/actions/workflows/release.yml/badge.svg)
 
 mccsx is a cross-platform analysis tool for residue energy contribution vectors.
 
