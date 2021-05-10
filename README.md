@@ -145,7 +145,7 @@ https://pubmed.ncbi.nlm.nih.gov/33051641/
 
 ### MCCS in COVID-19 Drug Repurposing
 
-Zhiwei Feng, **Maozi Chen**, Ying Xue, Tianjian Liang, Hui Chen, Yuehan Zhou, Thomas Nolin, and Xiang-Qun Xie. **MCCS: A Novel Recognition Pattern-based Method for Fast Track Discovery of anti-SARS-CoV-2 drugs**. *Briefings in Bioinformatics*. 2020, October 20.
+Zhiwei Feng, **Maozi Chen**, Ying Xue, Tianjian Liang, Hui Chen, Yuehan Zhou, Thomas Nolin, and Xiang-Qun Xie. **MCCS: A Novel Recognition Pattern-based Method for Fast Track Discovery of anti-SARS-CoV-2 drugs**. *Briefings in Bioinformatics*. Volume 22, Issue 2, March 2021, Pages 946–962.
 
 https://doi.org/10.1093/bib/bbaa260
 
@@ -159,6 +159,15 @@ Feng, Zhiwei; Liang, Tianjian; Wang, Siyi; **Chen, Maozi**; Hou, Tianling; Zhao,
 https://doi.org/10.1021/acschemneuro.0c00457
 
 https://pubmed.ncbi.nlm.nih.gov/32941011/
+
+
+### MCCS in AA<sub>2A</sub>R Case Study
+
+Jin Cheng, **Maozi Chen**, Siyi Wang, Tianjian Liang, Hui Chen, Chih-Jung Chen, Zhiwei Feng, Xiang-Qun Xie. **Binding Characterization of Agonists and Antagonists by MCCS: A Case Study from Adenosine A<sub>2A</sub> Receptor**. *ACS Chemical Neuroscience*. 2021, 12, 9, 1606–1620.
+
+https://doi.org/10.1021/acschemneuro.1c00082
+
+https://pubmed.ncbi.nlm.nih.gov/33856784/
 
 
 Author
