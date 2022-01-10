@@ -1,6 +1,7 @@
 ﻿using mccsx.Helpers;
+using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.Invocation;
+using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.Parsing;
 using System.Diagnostics;
 using System.IO;
@@ -11,51 +12,33 @@ namespace mccsx
 {
     internal static class Program
     {
-        private static T ValueForOption<T>(this CommandResult result, string alias, T defaultValue = default)
-            where T : struct
+        private static OptionResult? GetOptionResult(this CommandResult result, string alias)
         {
-            return result[alias]?.GetValueOrDefault<T>() ?? defaultValue;
+            return result.Children.OfType<OptionResult>().FirstOrDefault(o => o.Option.HasAlias(alias));
         }
 
-        private static string? ValidateDirectory(this CommandResult result, string alias, bool required)
+        private static bool BoolOption(this CommandResult result, string alias)
         {
-            var opt = result[alias];
-
-            if (opt == null)
-                return required ? $"Required option missing: {alias}" : null;
-
-            // Next validator middleware in the pipeline will check for the missing argument
-            if (opt.Tokens.Count == 0)
-                return null;
-
-            if (!opt.GetValueOrDefault<DirectoryInfo>()!.Exists)
-                return $"Directory {result[alias]?.Tokens[0].Value} does not exist for option: {alias}";
-
-            return null;
+            return result.GetOptionResult(alias)?.GetValueOrDefault<bool>() ?? false;
         }
 
-        private static string? ValidateCommonArguments(this CommandResult result)
+        private static string? ValidateCategories(this CommandResult result)
         {
-            string? msg = result.ValidateDirectory("--library", true);
-            if (msg != null) return msg;
-
-            var opt = result["--categories"];
+            var opt = result.GetOptionResult("--categories");
             if (opt == null || opt.Tokens.Count == 0)
                 return null;
 
-            string[]? categories = opt.GetValueOrDefault<string[]>();
+            var allCategories = EnumAnnotationHelper<Category>.Enums
+                .Select(o => o.ToString())
+                .ToHashSet();
 
-            if (categories != null)
-            {
-                var allCategories = EnumAnnotationHelper<Category>.Enums
-                    .Select(o => o.ToString()).ToHashSet();
+            var errorTokens = new List<string>();
+            foreach (var token in opt.Tokens)
+                if (!allCategories.Contains(token.Value.ToLower()))
+                    errorTokens.Add(token.Value);
 
-                foreach (string category in categories)
-                {
-                    if (!allCategories.Contains(category))
-                        return $"Unrecognized category '{category}' for: --categories";
-                }
-            }
+            if (errorTokens.Count > 0)
+                return $"Unrecognized token{(errorTokens.Count > 1 ? "s" : "")} '{string.Join("', '", errorTokens)}' for: --categories";
 
             return null;
         }
@@ -91,24 +74,30 @@ namespace mccsx
             var searchCommand = new Command("search", "To perform similarity search for a pattern vector in a RECV (residue energy contribution vector) library and generate search reports")
             {
                 new Option<DirectoryInfo>(
-                    new[] { "-l", "--library" },
-                    "(required) A directory containing RECVs (in jdock output layout) of the conformations of a ligand library to similarity search in"),
+                    new[] { "--library", "-l" },
+                    "A directory containing RECVs (in jdock output layout) of the conformations of a ligand library to similarity search in")
+                {
+                    IsRequired = true,
+                }.ExistingOnly(),
                 new Option<DirectoryInfo>(
-                    new[] { "-p", "--pattern" },
-                    "(required) A directory containing RECVs (in jdock output layout) of the pattern conformation to similarity search for"),
+                    new[] { "--pattern", "-p" },
+                    "A directory containing RECVs (in jdock output layout) of the pattern conformation to similarity search for")
+                {
+                    IsRequired = true,
+                }.ExistingOnly(),
                 new Option<DirectoryInfo>(
-                    new[] { "-o", "--out" },
+                    new[] { "--out", "-o" },
                     "A directory to store the similarity report and the most similar conformations [default: .]"),
                 new Option<int>(
-                    new[] { "-n", "--count" },
+                    new[] { "--count", "-n" },
                     () => 100,
                     "The number of the most similar conformations to be emitted into the output directory"),
                 new Option<Measure>(
-                    new[] { "-m", "--measure" },
+                    new[] { "--measure", "-m" },
                     () => Measure.cosine,
                     "The similarity measurement algorithm to be used in matching a candidate RECV in the library with a pattern RECV"),
                 new Option<bool>(
-                    new[] { "-r", "--recursive" },
+                    new[] { "--recursive", "-r" },
                     "Locate RECVs in the library subdirectories recursively"),
                 new Option<NamingScheme>(
                     new[] { "--naming" },
@@ -119,10 +108,7 @@ namespace mccsx
             // Add a validator to the pipeline for validating directory options
             searchCommand.AddValidator(cr =>
             {
-                string? msg = cr.ValidateCommonArguments();
-                if (msg != null) return msg;
-
-                msg = cr.ValidateDirectory("--pattern", true);
+                string? msg = cr.ValidateCategories();
                 if (msg != null) return msg;
 
                 return null;
@@ -134,63 +120,66 @@ namespace mccsx
             var collateCommand = new Command("collate", "To collect input vectors from a RECV (residue energy contribution vector) library and optionally generate similarity matrices, heatmaps and Excel workbooks")
             {
                 new Option<DirectoryInfo>(
-                    new[] { "-l", "--library" },
-                    "(required) The directory containing RECVs (in jdock output layout) of the conformations of a ligand library to collect input vectors from"),
+                    new[] { "--library", "-l" },
+                    "The directory containing RECVs (in jdock output layout) of the conformations of a ligand library to collect input vectors from")
+                {
+                    IsRequired = true,
+                }.ExistingOnly(),
                 new Option<DirectoryInfo>(
-                    new[] { "-o", "--out" },
+                    new[] { "--out", "-o" },
                     "The directory to store the collected input vectors and the computed outputs like similarity matrices [default: .]"),
                 new Option<Measure>(
-                    new[] { "-m", "--measure" },
+                    new[] { "--measure", "-m" },
                     () => Measure.cosine,
                     "The similarity measure to be used in computing similarity matrices (required --matrix)"),
                 new Option<Measure>(
-                    new[] { "-M", "--iv_measure" },
+                    new[] { "--iv_measure", "-M" },
                     () => Measure.cosine,
                     "The distance measure to be used in clustering input vectors"),
                 new Option<Measure>(
-                    new[] { "-s", "--smrow_measure" },
+                    new[] { "--smrow_measure", "-s" },
                     () => Measure.cosine,
                     "The distance measure to be used in clustering row vectors of a similarity matrix"),
                 new Option<Measure>(
-                    new[] { "-S", "--smcol_measure" },
+                    new[] { "--smcol_measure", "-S" },
                     () => Measure.cosine,
                     "The distance measure to be used in clustering column vectors of a similarity matrix"),
                 new Option<Linkage>(
-                    new[] { "-L", "--iv_linkage" },
+                    new[] { "--iv_linkage", "-L" },
                     () => Linkage.farthest,
                     "The linkage algorithm to be used in clustering the input vectors"),
                 new Option<Linkage>(
-                    new[] { "-k", "--smrow_linkage" },
+                    new[] { "--smrow_linkage", "-k" },
                     () => Linkage.farthest,
                     "The linkage algorithm to be used in clustering row vectors of a similarity matrix"),
                 new Option<Linkage>(
-                    new[] { "-K", "--smcol_linkage" },
+                    new[] { "--smcol_linkage", "-K" },
                     () => Linkage.farthest,
                     "The linkage algorithm to be used in clustering column vectors of a similarity matrix"),
                 new Option<bool>(
-                    new[] { "-v", "--vector" },
+                    new[] { "--vector", "-v" },
                     "Enable the output of input vectors in CSV format which are collected from the RECV library"),
                 new Option<bool>(
-                    new[] { "-x", "--matrix" },
+                    new[] { "--matrix", "-x" },
                     "Enable the output of similarity matrices in CSV format"),
                 new Option<bool>(
-                    new[] { "-c", "--cluster" },
+                    new[] { "--cluster", "-c" },
                     "Enable clustering of input vectors and/or similarity matrices (requires --vector and/or --matrix)"),
                 new Option<bool>(
-                    new[] { "-H", "--heatmap" },
+                    new[] { "--heatmap", "-H" },
                     "Enable the generation of PNG heatmaps for input vectors and/or similarity matrices (requires --vector and/or --matrix)"),
                 new Option<bool>(
-                    new[] { "-w", "--workbook" },
+                    new[] { "--workbook", "-w" },
                     "Enable the generation of Excel workbooks for input vectors, similarity matrices and residue rankings"),
                 new Option<int>(
-                    new[] { "-n", "--top" },
+                    new[] { "--top", "-n" },
                     () => 20,
                     "The number of top residues to be emitted into the ranking reports (requires --workbook)"),
                 new Option<bool>(
-                    new[] { "-y", "--overwrite" },
+                    new[] { "--overwrite", "-y" },
                     "Force to overwriting all existing output files, the default behavior is to skip existing files"),
                 new Option<bool>(
-                    new[] { "-r", "--recursive" },
+                    new[] { "--recursive", "-r" },
                     "Locate RECVs in the library subdirectories recursively"),
                 new Option<NamingScheme>(
                     new[] { "--naming" },
@@ -201,10 +190,10 @@ namespace mccsx
                     () => RowOrdering.sequence,
                     "The sorting rule for the rows of input vectors in heatmaps"),
                 new Option<string>(
-                    new[] { "-f", "--filter" },
+                    new[] { "--filter", "-f" },
                     "The filter script to be applied to the residue sequences that is invoked with the prefix name of input conformation substituting the {} placeholder if present (The script must return a headed table consisting of two columns: residue sequence, residue index)"),
                 new Option<string>(
-                    new[] { "-F", "--state_filter" },
+                    new[] { "--state_filter", "-F" },
                     "The filter script to be used in determining the state of the inputs (The script must return a headed table consisting of two columns: input name, input state)"),
             };
 
@@ -213,15 +202,15 @@ namespace mccsx
             // Add a validator to the pipeline for validating directory options
             collateCommand.AddValidator(cr =>
             {
-                string? msg = cr.ValidateCommonArguments();
+                string? msg = cr.ValidateCategories();
                 if (msg != null) return msg;
 
-                if (!cr.ValueForOption<bool>("--vector") &&
-                    !cr.ValueForOption<bool>("--matrix"))
+                if (!cr.BoolOption("--vector") && !cr.BoolOption("--matrix"))
                 {
-                    if (cr.ValueForOption<bool>("--cluster"))
+                    if (cr.BoolOption("--cluster"))
                         return "Clustering must be performed for: --vector, --matrix, or both";
-                    if (cr.ValueForOption<bool>("--heatmap"))
+
+                    if (cr.BoolOption("--heatmap"))
                         return "Heatmaps must be generated for: --vector, --matrix, or both";
                 }
 
@@ -236,8 +225,11 @@ namespace mccsx
             };
 
             rootCommand.AddGlobalOption(new Option<string[]>(
-                new[] { "-C", "--categories" },
-                $"The categories to run the computation with [default: {string.Join(" ", EnumAnnotationHelper<Category>.Enums)}]"));
+                new[] { "--categories", "-C" },
+                $"The categories to run the computation with [default: {string.Join(' ', EnumAnnotationHelper<Category>.Enums)}]")
+            {
+                AllowMultipleArgumentsPerToken = true,
+            });
 
             // Parse the incoming args and invoke the handler
             return await rootCommand.InvokeAsync(args);

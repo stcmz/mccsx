@@ -40,19 +40,21 @@ mccsx additionally allows:
 Supported operating systems and compilers
 -----------------------------------------
 
-All systems with [.NET SDK v5.0] or higher supported, e.g.
-* Windows 10 version 1809 or higher
-* macOS 10.13 "High Sierra" or higher
+All systems with [.NET SDK v6.0] or higher supported, e.g.
+* Windows 10 version 1607 or higher
+* macOS 10.15 "Catalina" or higher
 * most of current Linux distros: Ubuntu, CentOS, openSUSE, RHEL, Fedora, Debian, Alpine, SLES
+
+See [official document](https://github.com/dotnet/core/blob/main/release-notes/6.0/supported-os.md) for more details.
 
 Compilation from source code
 ----------------------------
 
 ### Compiler and SDK
 
-mccsx compiles with [.NET SDK v5.0]. Follow the official guide to download and install the SDK before the build. The SDK also comes with the Visual Studio 2019 installer version 16.8 or higher.
+mccsx compiles with [.NET SDK v6.0]. Follow the official guide to download and install the SDK before the build. The SDK also comes with the Visual Studio 2022 installer version 16.8 or higher.
 
-The Visual Studio solution and project files, as well as the vscode settings are provided. One may open `mccsx.sln` in Visual Studio 2019 and do a rebuild (predefined profiles for Windows/Linux/macOS are also provided), or open the cloned repository in vscode and run the build task.
+The Visual Studio solution and project files, as well as the vscode settings are provided. One may open `mccsx.sln` in Visual Studio 2022 and do a rebuild (predefined profiles for Windows/Linux/macOS are also provided), or open the cloned repository in vscode and run the build task.
 
 The generated objects are placed in the `obj` folder, and the generated executable are placed in the `bin` folder.
 
@@ -61,38 +63,64 @@ Thanks to the complete cross-platform nature of the SDK, one can target any supp
 
 ### Build for Linux
 
-To compile for Linux on any supported system, simply run
-```
-dotnet publish -c release --no-self-contained -r linux-x64 -p:Platform="Any CPU" -p:PublishSingleFile=true
+To compile for Linux on any supported system, simply run either of
+```Powershell
+# Dynamic build, will require installation of .NET Runtime/SDK
+dotnet publish -c release --no-self-contained -r linux-x64 -p:UseAppHost=true
+
+# Static build, no .NET Runtime/SDK is required
+dotnet publish -c release --self-contained -r linux-x64 -p:UseAppHost=true -p:PublishTrimmed=true
 ```
 
-Or with MSBuild, simply run
-```
-msbuild /t:Restore;Clean;Build;Publish /p:Configuration=Release /p:Platform="Any CPU" /p:PublishProfile=LinuxFolderProfile
+Or with MSBuild, simply run either of
+```Powershell
+# Dynamic build, will require installation of .NET Runtime/SDK
+msbuild /t:"Restore;Clean;Build;Publish" /p:Configuration=Release /p:PublishProfile=LinuxFolderProfile
+
+# Static build, no .NET Runtime/SDK is required
+msbuild /t:"Restore;Clean;Build;Publish" /p:Configuration=Release /p:PublishProfile=LinuxFolderProfile_static
 ```
 
 ### Build for Windows
 
-To compile for Windows on any supported system, simply run
-```
-dotnet publish -c release --no-self-contained -r win-x64 -p:Platform="Any CPU" -p:PublishSingleFile=true -p:PublishReadyToRun=true
+To compile for Windows on any supported system, simply run either of
+```Powershell
+# Dynamic build, will require installation of .NET Runtime/SDK
+dotnet publish -c release --no-self-contained -r win-x64 -p:UseAppHost=true -p:PublishReadyToRun=true
+
+# Static build, no .NET Runtime/SDK is required
+dotnet publish -c release --self-contained -r win-x64 -p:UseAppHost=true -p:PublishTrimmed=true -p:PublishReadyToRun=true
 ```
 
-Or with MSBuild, simply run
+Or with MSBuild, simply run either of
+```Powershell
+# Dynamic build, will require installation of .NET Runtime/SDK
+msbuild /t:"Restore;Clean;Build;Publish" /p:Configuration=Release /p:PublishProfile=WinFolderProfile
+
+# Static build, no .NET Runtime/SDK is required
+msbuild /t:"Restore;Clean;Build;Publish" /p:Configuration=Release /p:PublishProfile=WinFolderProfile_static
 ```
-msbuild /t:Restore;Clean;Build;Publish /p:Configuration=Release /p:Platform="Any CPU" /p:PublishProfile=WinFolderProfile
-```
+
+Kindly note that, the `PublishReadyToRun` option is only available while building on Windows.
 
 ### Build for macOS
 
-To compile for macOS on any supported system, simply run
-```
-dotnet publish -c release --no-self-contained -r osx-x64 -p:Platform="Any CPU" -p:PublishSingleFile=true
+To compile for macOS on any supported system, simply run either of
+```PowerShell
+# Dynamic build, will require installation of .NET Runtime/SDK
+dotnet publish -c release --no-self-contained -r osx-x64 -p:UseAppHost=true
+
+# Static build, no .NET Runtime/SDK is required
+dotnet publish -c release --self-contained -r osx-x64 -p:UseAppHost=true -p:PublishTrimmed=true
 ```
 
-Or with MSBuild, simply run
-```
-msbuild /t:Restore;Clean;Build;Publish /p:Configuration=Release /p:Platform="Any CPU" /p:PublishProfile=MacFolderProfile
+Or with MSBuild, simply run either of
+```PowerShell
+# Dynamic build, will require installation of .NET Runtime/SDK
+msbuild /t:"Restore;Clean;Build;Publish" /p:Configuration=Release /p:PublishProfile=MacFolderProfile
+
+# Static build, no .NET Runtime/SDK is required
+msbuild /t:"Restore;Clean;Build;Publish" /p:Configuration=Release /p:PublishProfile=MacFolderProfile_static
 ```
 
 Usage
@@ -101,7 +129,7 @@ Usage
 First add mccsx to the PATH environment variable or place mccsx in a PATH location (e.g. C:\Windows\System32\ or /usr/bin).
 
 To display a full list of available options, simply run the program with the `--help` argument
-```
+```bash
 mccsx --help
 mccsx search --help
 mccsx collate --help
@@ -110,24 +138,24 @@ mccsx collate --help
 ### mccsx search
 
 To similarity search for a pattern in a library of jdock resulting vectors, run
-```
+```bash
 mccsx search -l docking_output -p scoring_output -m cosine -o bestmatch
 ```
 
 ### mccsx collate
 
 To analyze the relationship among the vectors acquired for a ligand library docked against a receptor structure, run
-```
+```bash
 mccsx collate -l docking_output -m cosine -o report -vx
 ```
 
 To carry out agonist/antagonist analysis using the vectors acquired from a set of receptor-ligand complexes, run
-```
+```bash
 mccsx collate -l scoring_output -o report -c -M correlation -L farthest -v
 ```
 
 To carry out cluster analysis of the receptor structures of different proteins (i.e. different residue sequences) scored against corresponding cocrystal binding ligands, and the residue sequences can be aligned with a certain numbering scheme (e.g. the Ballesteros-Weinstein numbering scheme for GPCR sequences), run
-```
+```bash
 mccsx collate -l scoring_output -o report -c -M correlation -L farthest -v -f "gpcrn {}: -1234"
 ```
 
@@ -177,4 +205,4 @@ Author
 
 
 [Maozi Chen]: https://www.linkedin.com/in/maozichen/
-[.NET SDK v5.0]: https://dotnet.microsoft.com/download/dotnet/5.0
+[.NET SDK v6.0]: https://dotnet.microsoft.com/download/dotnet/6.0

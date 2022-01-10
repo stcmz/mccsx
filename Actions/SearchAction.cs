@@ -42,7 +42,7 @@ namespace mccsx
             var errorList = new List<Category>();
 
             var categories = options.Categories?
-                .Select(o => Enum.Parse<Category>(o))
+                .Select(o => Enum.Parse<Category>(o.ToLower()))
                 .Distinct()
                 .ToArray() ?? EnumAnnotationHelper<Category>.Enums;
 
