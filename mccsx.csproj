@@ -9,7 +9,7 @@
     <Nullable>enable</Nullable>
     <Authors>Maozi Chen</Authors>
     <Company>University of Pittsburgh</Company>
-    <Version>1.4.1</Version>
+    <Version>1.4.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
