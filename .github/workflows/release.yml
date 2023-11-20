@@ -86,7 +86,7 @@ jobs:
 
           ### Prerequisite
 
-          * .NET 6.0 SDK or runtime: Follow [the official guide](https://dotnet.microsoft.com/download/dotnet/6.0) to install.
+          * .NET 8.0 SDK or runtime: Follow [the official guide](https://dotnet.microsoft.com/download/dotnet/8.0) to install.
           * GDI+ lib: On platforms other than Windows, an additional lib must be installed to support the generation of heatmaps.
 
           For example, on Ubuntu, run
