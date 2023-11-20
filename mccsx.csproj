@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
@@ -8,7 +8,7 @@
     <Nullable>enable</Nullable>
     <Authors>Maozi Chen</Authors>
     <Company>University of Pittsburgh</Company>
-    <Version>1.4.2</Version>
+    <Version>1.4.3</Version>
   </PropertyGroup>
   <ItemGroup>
     <None Remove=".gitignore" />
