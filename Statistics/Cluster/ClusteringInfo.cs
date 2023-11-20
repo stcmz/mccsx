@@ -93,7 +93,7 @@ public class ClusteringInfo<TRowKey, TColumnKey>
     public int VectorCount { get; }
     public int NodeCount { get; }
     public int BadVectorCount { get; }
-    public int Depth => Nodes.Last().Depth;
+    public int Depth => Nodes[Nodes.Count - 1].Depth;
 
     public string MetricName { get; }
     public string ClusterMethod { get; }
@@ -125,7 +125,7 @@ public class ClusteringInfo<TRowKey, TColumnKey>
     }
 
     public static IReadOnlyList<string> CsvColumnHeaders { get; }
-        = [ "Group ID", "Left", "Right", "Observ 1", "Observ 2", "Depth", "Distance" ];
+        = ["Group ID", "Left", "Right", "Observ 1", "Observ 2", "Depth", "Distance"];
 
     public void WriteToCsvFile(string fileName)
     {

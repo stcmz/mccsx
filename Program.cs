@@ -74,33 +74,33 @@ internal static class Program
         Command searchCommand = new("search", "To perform similarity search for a pattern vector in a RECV (residue energy contribution vector) library and generate search reports")
         {
             new Option<DirectoryInfo>(
-                [ "--library", "-l" ],
+                ["--library", "-l"],
                 "A directory containing RECVs (in jdock output layout) of the conformations of a ligand library to similarity search in")
             {
                 IsRequired = true,
             }.ExistingOnly(),
             new Option<DirectoryInfo>(
-                [ "--pattern", "-p" ],
+                ["--pattern", "-p"],
                 "A directory containing RECVs (in jdock output layout) of the pattern conformation to similarity search for")
             {
                 IsRequired = true,
             }.ExistingOnly(),
             new Option<DirectoryInfo>(
-                [ "--out", "-o" ],
+                ["--out", "-o"],
                 "A directory to store the similarity report and the most similar conformations [default: .]"),
             new Option<int>(
-                [ "--count", "-n" ],
+                ["--count", "-n"],
                 () => 100,
                 "The number of the most similar conformations to be emitted into the output directory"),
             new Option<Measure>(
-                [ "--measure", "-m" ],
+                ["--measure", "-m"],
                 () => Measure.cosine,
                 "The similarity measurement algorithm to be used in matching a candidate RECV in the library with a pattern RECV"),
             new Option<bool>(
-                [ "--recursive", "-r" ],
+                ["--recursive", "-r"],
                 "Locate RECVs in the library subdirectories recursively"),
             new Option<NamingScheme>(
-                [ "--naming" ],
+                ["--naming"],
                 () => NamingScheme.filepath,
                 "The naming scheme for the input vectors"),
         };
@@ -117,80 +117,80 @@ internal static class Program
         Command collateCommand = new("collate", "To collect input vectors from a RECV (residue energy contribution vector) library and optionally generate similarity matrices, heatmaps and Excel workbooks")
         {
             new Option<DirectoryInfo>(
-                [ "--library", "-l" ],
+                ["--library", "-l"],
                 "The directory containing RECVs (in jdock output layout) of the conformations of a ligand library to collect input vectors from")
             {
                 IsRequired = true,
             }.ExistingOnly(),
             new Option<DirectoryInfo>(
-                [ "--out", "-o" ],
+                ["--out", "-o"],
                 "The directory to store the collected input vectors and the computed outputs like similarity matrices [default: .]"),
             new Option<Measure>(
-                [ "--measure", "-m" ],
+                ["--measure", "-m"],
                 () => Measure.cosine,
                 "The similarity measure to be used in computing similarity matrices (required --matrix)"),
             new Option<Measure>(
-                [ "--iv_measure", "-M" ],
+                ["--iv_measure", "-M"],
                 () => Measure.cosine,
                 "The distance measure to be used in clustering input vectors"),
             new Option<Measure>(
-                [ "--smrow_measure", "-s" ],
+                ["--smrow_measure", "-s"],
                 () => Measure.cosine,
                 "The distance measure to be used in clustering row vectors of a similarity matrix"),
             new Option<Measure>(
-                [ "--smcol_measure", "-S" ],
+                ["--smcol_measure", "-S"],
                 () => Measure.cosine,
                 "The distance measure to be used in clustering column vectors of a similarity matrix"),
             new Option<Linkage>(
-                [ "--iv_linkage", "-L" ],
+                ["--iv_linkage", "-L"],
                 () => Linkage.farthest,
                 "The linkage algorithm to be used in clustering the input vectors"),
             new Option<Linkage>(
-                [ "--smrow_linkage", "-k" ],
+                ["--smrow_linkage", "-k"],
                 () => Linkage.farthest,
                 "The linkage algorithm to be used in clustering row vectors of a similarity matrix"),
             new Option<Linkage>(
-                [ "--smcol_linkage", "-K" ],
+                ["--smcol_linkage", "-K"],
                 () => Linkage.farthest,
                 "The linkage algorithm to be used in clustering column vectors of a similarity matrix"),
             new Option<bool>(
-                [ "--vector", "-v" ],
+                ["--vector", "-v"],
                 "Enable the output of input vectors in CSV format which are collected from the RECV library"),
             new Option<bool>(
-                [ "--matrix", "-x" ],
+                ["--matrix", "-x"],
                 "Enable the output of similarity matrices in CSV format"),
             new Option<bool>(
-                [ "--cluster", "-c" ],
+                ["--cluster", "-c"],
                 "Enable clustering of input vectors and/or similarity matrices (requires --vector and/or --matrix)"),
             new Option<bool>(
-                [ "--heatmap", "-H" ],
+                ["--heatmap", "-H"],
                 "Enable the generation of PNG heatmaps for input vectors and/or similarity matrices (requires --vector and/or --matrix)"),
             new Option<bool>(
-                [ "--workbook", "-w" ],
+                ["--workbook", "-w"],
                 "Enable the generation of Excel workbooks for input vectors, similarity matrices and residue rankings"),
             new Option<int>(
-                [ "--top", "-n" ],
+                ["--top", "-n"],
                 () => 20,
                 "The number of top residues to be emitted into the ranking reports (requires --workbook)"),
             new Option<bool>(
-                [ "--overwrite", "-y" ],
+                ["--overwrite", "-y"],
                 "Force to overwriting all existing output files, the default behavior is to skip existing files"),
             new Option<bool>(
-                [ "--recursive", "-r" ],
+                ["--recursive", "-r"],
                 "Locate RECVs in the library subdirectories recursively"),
             new Option<NamingScheme>(
-                [ "--naming" ],
+                ["--naming"],
                 () => NamingScheme.filepath,
                 "The naming scheme for the input vectors"),
             new Option<RowOrdering>(
-                [ "--sort_iv_rows" ],
+                ["--sort_iv_rows"],
                 () => RowOrdering.sequence,
                 "The sorting rule for the rows of input vectors in heatmaps"),
             new Option<string>(
-                [ "--filter", "-f" ],
+                ["--filter", "-f"],
                 "The filter script to be applied to the residue sequences that is invoked with the prefix name of input conformation substituting the {} placeholder if present (The script must return a headed table consisting of two columns: residue sequence, residue index)"),
             new Option<string>(
-                [ "--state_filter", "-F" ],
+                ["--state_filter", "-F"],
                 "The filter script to be used in determining the state of the inputs (The script must return a headed table consisting of two columns: input name, input state)"),
         };
 
@@ -230,7 +230,7 @@ internal static class Program
         };
 
         rootCommand.AddGlobalOption(new Option<string[]>(
-            [ "--categories", "-C" ],
+            ["--categories", "-C"],
             $"The categories to run the computation with [default: {string.Join(' ', EnumAnnotationHelper<Category>.Enums)}]")
         {
             AllowMultipleArgumentsPerToken = true,

@@ -204,7 +204,7 @@ internal class SearchAction : IAction<SearchOptions>
                 string confSimCsvFile = Path.Combine(outputDir, $"{Parameters.PatternName}_confsim_{category}.csv");
                 string[] confSimCsvHeaders = ["Conf Name", "Similarity"];
                 object[][] confSimCsvContent = confSims
-                    .Select(o => new object[] { o.ConfName, o.Similarity })
+                    .Select(o => (object[])[o.ConfName, o.Similarity])
                     .ToArray();
                 File.WriteAllLines(confSimCsvFile, confSimCsvContent.FormatCsvRows(confSimCsvHeaders));
             }
@@ -212,8 +212,8 @@ internal class SearchAction : IAction<SearchOptions>
             // Output summarized search report in CSV
             string outputReportFile = Path.Combine(Parameters.OutputDir.FullName, $"searchreport_{category}.csv");
             File.WriteAllLines(outputReportFile, summaryResults
-                .Select(o => new[] { o.InputName, o.BestConfSim.ConfName, o.BestConfSim.Similarity.ToString() })
-                .FormatCsvRows([ "Drug", "Best Conf", $"{Parameters.Similarity.Measure.Name} Similarity" ]));
+                .Select(o => (string[])[o.InputName, o.BestConfSim.ConfName, o.BestConfSim.Similarity.ToString()])
+                .FormatCsvRows(["Drug", "Best Conf", $"{Parameters.Similarity.Measure.Name} Similarity"]));
         });
 
         return 0;

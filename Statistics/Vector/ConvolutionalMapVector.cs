@@ -62,7 +62,7 @@ public class ConvolutionalMapVector<TKey, TName> : IVector<TKey, TName, string?>
 
     public ICluster<TKey> Cluster()
     {
-        return new ClusterBase<IVector<TKey, TName, string?>, TKey>([ this ]);
+        return new ClusterBase<IVector<TKey, TName, string?>, TKey>([this]);
     }
 
     public IEnumerable<TKey> UnionKeys(params IVector<TKey>[] vecs)

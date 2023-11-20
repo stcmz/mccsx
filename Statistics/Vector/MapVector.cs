@@ -40,7 +40,7 @@ public class MapVector<TKey> : IVector<TKey, string, string?>
 
     public ICluster<TKey> Cluster()
     {
-        return new ClusterBase<IVector<TKey, string, string?>, TKey>([ this ]);
+        return new ClusterBase<IVector<TKey, string, string?>, TKey>([this]);
     }
 
     public IEnumerable<TKey> UnionKeys(params IVector<TKey>[] vecs)

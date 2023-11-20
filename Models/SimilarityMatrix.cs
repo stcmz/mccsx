@@ -1,5 +1,4 @@
 ﻿using mccsx.Statistics;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -91,22 +90,12 @@ internal class SimilarityMatrix : MapDataFrame<string, string>
             Debug.Assert(Enumerable.SequenceEqual(columnStates, Rows.OrderBy(o => o.Tag!).Select(o => o.Tag!)));
 
             // Header row 1
-            IEnumerable<string> headerRow1 = new[]
-            {
-                StateName,
-                "Input",
-            }
-            .Concat(columnKeys);
+            IEnumerable<string> headerRow1 = [StateName, "Input", .. columnKeys];
 
             // Header row 2
-            IEnumerable<string?> headerRow2 = new[]
-            {
-                null,
-                $"{StateName}->",
-            }
-            .Concat(columnStates);
+            IEnumerable<string?> headerRow2 = [null, $"{StateName}->", .. columnStates];
 
-            headerRows = [ headerRow1, headerRow2 ];
+            headerRows = [headerRow1, headerRow2];
         }
         else
         {
@@ -119,19 +108,15 @@ internal class SimilarityMatrix : MapDataFrame<string, string>
             Debug.Assert(Enumerable.SequenceEqual(columnKeys, RowKeys.OrderBy(o => o)));
 
             // Only one header row
-            IEnumerable<string> headerRow = new[]
-            {
-                "Input",
-            }
-            .Concat(columnKeys);
+            IEnumerable<string> headerRow = ["Input", .. columnKeys];
 
-            headerRows = [ headerRow ];
+            headerRows = [headerRow];
         }
 
         // Build the data rows, in the same ordering of columns
         dataRows = columnKeys.Select((rowKey, i) =>
         {
-            IEnumerable<object?> row = [ rowKey ];
+            IEnumerable<object?> row = [rowKey];
 
             // Vector state
             if (StateName != null)

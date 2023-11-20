@@ -134,24 +134,22 @@ internal class Rankings(
         object? defaultValue)
     {
         // Input names
-        dataRows = dataRows.Append(new[] { blockName }.Concat(inputNames));
+        dataRows = dataRows.Append([blockName, .. inputNames]);
 
         // Input states
         if (StateName != null)
-            dataRows = dataRows.Append(new[] { $"{StateName}->" }.Concat(inputStates));
+            dataRows = dataRows.Append([$"{StateName}->", .. inputStates]);
 
         // Ranking lines
         dataRows = dataRows.Concat
         (
             Enumerable.Range(0, TopN).Select
             (
-                i => new object?[] { i + 1 }.Concat
-                (
-                    data.Select
-                    (
-                        res => i < res.Length ? valueSelector(res[i]) : defaultValue
-                    )
-                )
+                i => (object?[])
+                [
+                    i + 1,
+                    .. data.Select(res => i < res.Length ? valueSelector(res[i]) : defaultValue)
+                ]
             )
         );
 

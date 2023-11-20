@@ -25,10 +25,10 @@ internal class RawRecvData(
     public string? IndexName { get; } = indexName;
 
     public static IReadOnlyList<string> CsvColumnHeaders { get; }
-        = [ "Chain ID", "Residue name", "Residue sequence" ];
+        = ["Chain ID", "Residue name", "Residue sequence"];
 
     public static IReadOnlyList<string> SummaryRowHeaders { get; }
-        = [ "Intra-Ligand Free", "Inter-Ligand Free", "Total Free Energy", "Normalized Total Free Energy" ];
+        = ["Intra-Ligand Free", "Inter-Ligand Free", "Total Free Energy", "Normalized Total Free Energy"];
 
     public static RawRecvData FromCsvFile(string csvFilePath, string inputName, string? inputState, IndexFilter? indexFilter)
     {

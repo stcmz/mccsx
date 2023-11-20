@@ -37,22 +37,22 @@ internal class CollateAction : IAction<CollateOptions>
     protected const int MaxPlottingVectors = 256;
 
     // Color scale for jdock scores and similarity scores in heatmap
-    protected static readonly (double scale, Color color)[] ScoreColorScalesHeatmap = new[]
-    {
+    protected static readonly (double scale, Color color)[] ScoreColorScalesHeatmap =
+    [
         (-1,   ColorHelper.ToColor((1.0, 0.0, 0.0, 0.3))), // 00004D, very dark blue
         (-0.5, ColorHelper.ToColor((1.0, 0.0, 0.0, 1.0))), // 0000FF, blue
         ( 0,   ColorHelper.ToColor((1.0, 1.0, 1.0, 1.0))), // FFFFFF, white
         ( 0.5, ColorHelper.ToColor((1.0, 1.0, 0.0, 0.0))), // FF0000, red
         ( 1,   ColorHelper.ToColor((1.0, 0.5, 0.0, 0.0))), // 800000, maroon
-    };
+    ];
 
     // Color scale for scores and similarity in Excel conditional formatting
-    protected static readonly (double scale, string color)[] ScoreColorScalesExcel = new[]
-    {
+    protected static readonly (double scale, string color)[] ScoreColorScalesExcel =
+    [
         (-2, "FF0000FF" ),
         (.0, "FFFFFFFF" ),
         ( 2, "FFFF0000" ),
-    };
+    ];
 
     public int Setup(CollateOptions options)
     {

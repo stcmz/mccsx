@@ -272,11 +272,9 @@ internal sealed class InputVectors : MapDataFrame<string, string>
             IEnumerable<string?> headerRow1 = RawRecvData.CsvColumnHeaders;
 
             if (IndexName != null)
-                headerRow1 = headerRow1.Append(IndexName);
+                headerRow1 = [.. headerRow1, IndexName];
 
-            headerRow1 = headerRow1.Concat(columnKeys)
-                .Concat(stateCounts.Select(o => $"Average({o.Count})"))
-                .Append($"Average({ColumnCount})");
+            headerRow1 = [.. headerRow1, .. columnKeys, .. stateCounts.Select(o => $"Average({o.Count})"), $"Average({ColumnCount})"];
 
             // Header row 2
             IEnumerable<string?> headerRow2 = RawRecvData.CsvColumnHeaders.SkipLast(1)
@@ -285,12 +283,8 @@ internal sealed class InputVectors : MapDataFrame<string, string>
             if (IndexName != null)
                 headerRow2 = headerRow2.Append(null);
 
-            headerRow2 = headerRow2.Append($"{StateName}->")
-                .Concat(columnKeys.Select(o => GetColumn(o).Tag))
-                .Concat(stateCounts.Select(o => o.State))
-                .Append("All");
-
-            headerRows = [ headerRow1, headerRow2 ];
+            headerRow2 = [.. headerRow2, $"{StateName}->", .. columnKeys.Select(o => GetColumn(o).Tag), .. stateCounts.Select(o => o.State), "All"];
+            headerRows = [headerRow1, headerRow2];
         }
         else
         {
@@ -305,10 +299,8 @@ internal sealed class InputVectors : MapDataFrame<string, string>
             if (IndexName != null)
                 headerRow = headerRow.Append(IndexName);
 
-            headerRow = headerRow.Concat(columnKeys)
-                .Append($"Average({ColumnCount})");
-
-            headerRows = [ headerRow ];
+            headerRow = [.. headerRow, .. columnKeys, $"Average({ColumnCount})"];
+            headerRows = [headerRow];
         }
 
         // Check if all residues have unique sequence number
@@ -328,11 +320,11 @@ internal sealed class InputVectors : MapDataFrame<string, string>
                 ResidueInfo resInfo = ResidueInfo[vec.Name];
 
                 // Chain ID, Residue name
-                IEnumerable<object?> row = [ resInfo.ChainIds, resInfo.ResidueNames, ];
+                IEnumerable<object?> row = [resInfo.ChainIds, resInfo.ResidueNames,];
 
                 // Residue sequence, Residue index
                 if (IndexName != null)
-                    row = row.Concat([ uniqueSeq ? (object?)resInfo.ResidueSeq : resInfo.ResidueSeqs, resInfo.ResidueIndex ]);
+                    row = row.Concat([uniqueSeq ? resInfo.ResidueSeq : resInfo.ResidueSeqs, resInfo.ResidueIndex]);
                 else
                     row = row.Append(resInfo.ResidueSeq);
 
@@ -354,7 +346,7 @@ internal sealed class InputVectors : MapDataFrame<string, string>
             .Concat(RawRecvData.SummaryRowHeaders.Select((field, i) =>
             {
                 // Chain ID, Residue name, Residue sequence
-                IEnumerable<object?> row = [ field, null, null, ];
+                IEnumerable<object?> row = [field, null, null,];
 
                 // Residue index
                 if (IndexName != null)

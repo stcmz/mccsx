@@ -62,7 +62,7 @@ public class ConvolutionalArrayVector<TOriginalKey> : IVector<int, TOriginalKey,
 
     public ICluster<int> Cluster()
     {
-        return new ClusterBase<IVector<int, TOriginalKey, string?>, int>([ this ]);
+        return new ClusterBase<IVector<int, TOriginalKey, string?>, int>([this]);
     }
 
     public IEnumerable<int> UnionKeys(params IVector<int>[] vecs)

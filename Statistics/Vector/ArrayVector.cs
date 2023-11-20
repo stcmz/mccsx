@@ -40,7 +40,7 @@ public class ArrayVector : IVector<int, string, string?>
 
     public ICluster<int> Cluster()
     {
-        return new ClusterBase<IVector<int>, int>([ this ]);
+        return new ClusterBase<IVector<int>, int>([this]);
     }
 
     public IEnumerable<int> UnionKeys(params IVector<int>[] vecs)
