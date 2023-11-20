@@ -696,7 +696,7 @@ internal class CollateAction : IAction<CollateOptions>
                 sheetIndex++;
             }
 
-            doc.Close();
+            doc.Dispose();
         }
     }
 

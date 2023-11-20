@@ -27,12 +27,6 @@ public static class ExcelFluentExtensions
         return SpreadsheetDocument.Open(filepath, true);
     }
 
-    public static void Close(this SpreadsheetDocument spreadsheetDocument)
-    {
-        spreadsheetDocument.Close();
-        spreadsheetDocument.Dispose();
-    }
-
     public static SpreadsheetDocument AppendWorksheet(
         this SpreadsheetDocument spreadsheetDocument,
         string sheetName,
