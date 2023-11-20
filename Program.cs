@@ -108,10 +108,7 @@ namespace mccsx
             // Add a validator to the pipeline for validating directory options
             searchCommand.AddValidator(cr =>
             {
-                string? msg = cr.ValidateCategories();
-                if (msg != null) return msg;
-
-                return null;
+                cr.ErrorMessage = cr.ValidateCategories();
             });
 
             searchCommand.AddHandler<SearchAction, SearchOptions>();
@@ -203,18 +200,26 @@ namespace mccsx
             collateCommand.AddValidator(cr =>
             {
                 string? msg = cr.ValidateCategories();
-                if (msg != null) return msg;
+                if (msg != null)
+                {
+                    cr.ErrorMessage = msg;
+                    return;
+                }
 
                 if (!cr.BoolOption("--vector") && !cr.BoolOption("--matrix"))
                 {
                     if (cr.BoolOption("--cluster"))
-                        return "Clustering must be performed for: --vector, --matrix, or both";
+                    {
+                        cr.ErrorMessage = "Clustering must be performed for: --vector, --matrix, or both";
+                        return;
+                    }
 
                     if (cr.BoolOption("--heatmap"))
-                        return "Heatmaps must be generated for: --vector, --matrix, or both";
+                    {
+                        cr.ErrorMessage = "Heatmaps must be generated for: --vector, --matrix, or both";
+                        return;
+                    }
                 }
-
-                return null;
             });
 
             // Create a root command with two sub-commands
