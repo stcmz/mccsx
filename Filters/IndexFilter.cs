@@ -1,45 +1,43 @@
 ﻿using mccsx.Extensions;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
-namespace mccsx
+namespace mccsx;
+
+internal class IndexFilter
 {
-    internal class IndexFilter
+    public string IndexName { get; }
+
+    private readonly Dictionary<int, string> _data;
+
+    public IndexFilter(string[] lines)
     {
-        public string IndexName { get; }
+        if (lines.Length < 2)
+            throw new FilterException($"Insufficient lines", "index");
 
-        private readonly Dictionary<int, string> _data;
+        string[][] fieldLines = lines
+            .Select(o => o.Split(" \t".ToCharArray(), StringSplitOptions.RemoveEmptyEntries))
+            .ToArray();
 
-        public IndexFilter(string[] lines)
+        string[] headers = fieldLines[0];
+        if (headers.Length >= 2)
         {
-            if (lines.Length < 2)
-                throw new FilterException($"Insufficient lines", "index");
-
-            string[][] fieldLines = lines
-                .Select(o => o.Split(" \t".ToCharArray(), StringSplitOptions.RemoveEmptyEntries))
-                .ToArray();
-
-            string[] headers = fieldLines[0];
-            if (headers.Length >= 2)
-            {
-                _data = fieldLines
-                    .Skip(1)
-                    .ToDictionary(o => o[0].ParseResidueSequence(), o => o[1]);
-                IndexName = headers[1];
-            }
-            else
-            {
-                throw new FilterException("Insufficient columns");
-            }
+            _data = fieldLines
+                .Skip(1)
+                .ToDictionary(o => o[0].ParseResidueSequence(), o => o[1]);
+            IndexName = headers[1];
         }
-
-        public string? GetIndex(int residueSeq)
+        else
         {
-            if (_data.TryGetValue(residueSeq, out var value))
-                return value;
-            return null;
+            throw new FilterException("Insufficient columns");
         }
+    }
+
+    public string? GetIndex(int residueSeq)
+    {
+        if (_data.TryGetValue(residueSeq, out string? value))
+            return value;
+        return null;
     }
 }

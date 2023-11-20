@@ -1,8 +1,7 @@
-﻿namespace mccsx
+﻿namespace mccsx;
+
+internal enum RowOrdering
 {
-    internal enum RowOrdering
-    {
-        score,
-        sequence,
-    }
+    score,
+    sequence,
 }

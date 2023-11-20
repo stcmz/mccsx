@@ -1,13 +1,10 @@
 ﻿using mccsx.Extensions;
 using mccsx.Statistics;
 
-namespace mccsx
-{
-    internal record SimilarityParameters
-    {
-        public Measure Type { get; }
-        public IVectorDistanceMeasure Measure { get; }
+namespace mccsx;
 
-        public SimilarityParameters(Measure measure) => (Type, Measure) = (measure, measure.SimilarityMeasure());
-    }
+internal class SimilarityParameters(Measure measure)
+{
+    public Measure Type { get; } = measure;
+    public IVectorDistanceMeasure Measure { get; } = measure.SimilarityMeasure();
 }

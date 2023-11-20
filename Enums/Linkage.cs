@@ -1,16 +1,15 @@
 ﻿using mccsx.Statistics;
 
-namespace mccsx
+namespace mccsx;
+
+internal enum Linkage
 {
-    internal enum Linkage
-    {
-        [LinkageImpl(typeof(FarthestPointMethod))]
-        farthest,
+    [LinkageImpl(typeof(FarthestPointMethod))]
+    farthest,
 
-        [LinkageImpl(typeof(NearestPointMethod))]
-        nearest,
+    [LinkageImpl(typeof(NearestPointMethod))]
+    nearest,
 
-        [LinkageImpl(typeof(AverageDistanceMethod))]
-        average,
-    }
+    [LinkageImpl(typeof(AverageDistanceMethod))]
+    average,
 }

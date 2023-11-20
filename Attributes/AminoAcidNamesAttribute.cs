@@ -1,15 +1,11 @@
 ﻿using System;
 
-namespace mccsx
+namespace mccsx;
+
+[AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
+internal sealed class AminoAcidNamesAttribute(string shortName, char code) : Attribute
 {
-    [AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
-    internal sealed class AminoAcidNamesAttribute : Attribute
-    {
-        public AminoAcidNamesAttribute(string shortName, char code)
-            => (ShortName, Code) = (shortName, code);
+    public string ShortName { get; } = shortName;
 
-        public string ShortName { get; }
-
-        public char Code { get; }
-    }
+    public char Code { get; } = code;
 }

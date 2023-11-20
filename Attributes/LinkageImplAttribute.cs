@@ -1,13 +1,9 @@
 ﻿using System;
 
-namespace mccsx
-{
-    [AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
-    internal sealed class LinkageImplAttribute : Attribute
-    {
-        public LinkageImplAttribute(Type linkageClass)
-            => LinkageClass = linkageClass;
+namespace mccsx;
 
-        public Type LinkageClass { get; }
-    }
+[AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
+internal sealed class LinkageImplAttribute(Type linkageClass) : Attribute
+{
+    public Type LinkageClass { get; } = linkageClass;
 }

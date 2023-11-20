@@ -1,16 +1,12 @@
 ﻿using mccsx.Extensions;
 using mccsx.Statistics;
 
-namespace mccsx
-{
-    internal record ClusteringParameters
-    {
-        public Measure DistanceType { get; }
-        public IVectorDistanceMeasure DistanceMeasure { get; }
-        public Linkage LinkageType { get; }
-        public IClusterDistanceMeasure LinkageAlgorithm { get; }
+namespace mccsx;
 
-        public ClusteringParameters(Measure measure, Linkage linkage)
-            => (DistanceType, DistanceMeasure, LinkageType, LinkageAlgorithm) = (measure, measure.DistanceMeasure(), linkage, linkage.LinkageAlgorithm());
-    }
+internal class ClusteringParameters(Measure measure, Linkage linkage)
+{
+    public Measure DistanceType { get; } = measure;
+    public IVectorDistanceMeasure DistanceMeasure { get; } = measure.DistanceMeasure();
+    public Linkage LinkageType { get; } = linkage;
+    public IClusterDistanceMeasure LinkageAlgorithm { get; } = linkage.LinkageAlgorithm();
 }
