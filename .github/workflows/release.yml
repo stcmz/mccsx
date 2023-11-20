@@ -28,40 +28,40 @@ jobs:
       run: dotnet test --no-build --verbosity normal
     -
       name: Publish Dynamic Release for Linux x86-64
-      run: dotnet publish mccsx -c Release -p:PublishProfile=LinuxX64FolderProfile
+      run: dotnet publish -c Release -p:PublishProfile=LinuxX64FolderProfile
     -
       name: Publish Dynamic Release for Linux arm64
-      run: dotnet publish mccsx -c Release -p:PublishProfile=LinuxArm64FolderProfile
+      run: dotnet publish -c Release -p:PublishProfile=LinuxArm64FolderProfile
     -
       name: Publish Dynamic Release for Windows x86-64
-      run: dotnet publish mccsx -c Release -p:PublishProfile=WinX64FolderProfile
+      run: dotnet publish -c Release -p:PublishProfile=WinX64FolderProfile
     -
       name: Publish Dynamic Release for Windows arm64
-      run: dotnet publish mccsx -c Release -p:PublishProfile=WinArm64FolderProfile
+      run: dotnet publish -c Release -p:PublishProfile=WinArm64FolderProfile
     -
       name: Publish Dynamic Release for OSX x86-64
-      run: dotnet publish mccsx -c Release -p:PublishProfile=MacX64FolderProfile
+      run: dotnet publish -c Release -p:PublishProfile=MacX64FolderProfile
     -
       name: Publish Dynamic Release for OSX arm64
-      run: dotnet publish mccsx -c Release -p:PublishProfile=MacArm64FolderProfile
+      run: dotnet publish -c Release -p:PublishProfile=MacArm64FolderProfile
     -
       name: Publish Static Release for Linux x86-64
-      run: dotnet publish mccsx -c Release -p:PublishProfile=LinuxX64FolderProfile_static
+      run: dotnet publish -c Release -p:PublishProfile=LinuxX64FolderProfile_static
     -
       name: Publish Static Release for Linux arm64
-      run: dotnet publish mccsx -c Release -p:PublishProfile=LinuxArm64FolderProfile_static
+      run: dotnet publish -c Release -p:PublishProfile=LinuxArm64FolderProfile_static
     -
       name: Publish Static Release for Windows x86-64
-      run: dotnet publish mccsx -c Release -p:PublishProfile=WinX64FolderProfile_static
+      run: dotnet publish -c Release -p:PublishProfile=WinX64FolderProfile_static
     -
       name: Publish Static Release for Windows arm64
-      run: dotnet publish mccsx -c Release -p:PublishProfile=WinArm64FolderProfile_static
+      run: dotnet publish -c Release -p:PublishProfile=WinArm64FolderProfile_static
     -
       name: Publish Static Release for OSX x86-64
-      run: dotnet publish mccsx -c Release -p:PublishProfile=MacX64FolderProfile_static
+      run: dotnet publish -c Release -p:PublishProfile=MacX64FolderProfile_static
     -
       name: Publish Static Release for OSX arm64
-      run: dotnet publish mccsx -c Release -p:PublishProfile=MacArm64FolderProfile_static
+      run: dotnet publish -c Release -p:PublishProfile=MacArm64FolderProfile_static
     -
       name: Create Release
       id: create_release
