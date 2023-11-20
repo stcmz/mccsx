@@ -1,7 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <RuntimeIdentifiers>win-x64;linux-x64;osx-x64</RuntimeIdentifiers>
     <PublishSingleFile>true</PublishSingleFile>
     <LangVersion>latest</LangVersion>
@@ -10,10 +11,16 @@
     <Company>University of Pittsburgh</Company>
     <Version>1.4.4</Version>
   </PropertyGroup>
+
+  <ItemGroup>
+    <TrimmerRootAssembly Include="mccsx" />
+  </ItemGroup>
+
   <ItemGroup>
     <None Remove=".gitignore" />
     <None Remove="LICENSE" />
   </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="DocumentFormat.OpenXml" Version="3.0.0" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
